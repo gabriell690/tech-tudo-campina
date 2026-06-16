@@ -1,119 +1,185 @@
-import Container from "../ui/Container";
-import Button from "../ui/Button";
-import { ShieldCheck, Truck, CreditCard } from "lucide-react";
-import { Link } from "react-router-dom";
+/* eslint-disable react-hooks/immutability */
+import { useEffect, useState } from "react";
+
+import { ArrowRight } from "lucide-react";
+
+import { supabase } from "../../lib/supabase";
+
+interface Banner {
+  id: string;
+  title: string;
+  subtitle: string;
+  image_url: string;
+  button_text: string;
+  button_link: string;
+  active: boolean;
+}
 
 export default function Hero() {
+  const [banner, setBanner] =
+    useState<Banner | null>(null);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  useEffect(() => {
+    loadBanner();
+  }, []);
+
+  async function loadBanner() {
+    try {
+      const { data } =
+        await supabase
+          .from("banners")
+          .select("*")
+          .eq("active", true)
+          .limit(1)
+          .single();
+
+      if (data) {
+        setBanner(data);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <section
+        className="
+          h-175
+          flex
+          items-center
+          justify-center
+          bg-slate-100
+        "
+      >
+        <p>Carregando banner...</p>
+      </section>
+    );
+  }
+
+  if (!banner) {
+    return (
+      <section
+        className="
+          h-175
+          flex
+          items-center
+          justify-center
+          bg-slate-100
+        "
+      >
+        <p>Nenhum banner ativo.</p>
+      </section>
+    );
+  }
+
   return (
-    <section className="relative overflow-hidden bg-linear-to-br from-slate-950 via-blue-950 to-slate-900">
-      {/* Glow Effects */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-blue-600/20 blur-3xl rounded-full" />
+    <section
+      className="
+        relative
+        min-h-175
+        flex
+        items-center
+        overflow-hidden
+      "
+    >
+      {/* Imagem */}
+      <div
+        className="
+          absolute
+          inset-0
+        "
+      >
+        <img
+          src={banner.image_url}
+          alt={banner.title}
+          className="
+            w-full
+            h-full
+            object-cover
+          "
+        />
 
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-cyan-500/10 blur-3xl rounded-full" />
+        <div
+          className="
+            absolute
+            inset-0
+            bg-black/60
+          "
+        />
+      </div>
 
-      <Container>
-        <div className="grid lg:grid-cols-2 gap-16 items-center min-h-175 py-20">
-          {/* Conteúdo */}
-          <div className="relative z-10">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-300 text-sm mb-8">
-              ⚡ Tecnologia com os melhores preços
-            </div>
+      {/* Conteúdo */}
+      <div
+        className="
+          relative
+          z-10
+          max-w-7xl
+          mx-auto
+          px-6
+          w-full
+        "
+      >
+        <div
+          className="
+            max-w-3xl
+          "
+        >
+          <h1
+            className="
+              text-5xl
+              md:text-7xl
+              font-bold
+              text-white
+              leading-tight
+            "
+          >
+            {banner.title}
+          </h1>
 
-            <h1 className="text-5xl md:text-6xl xl:text-7xl font-bold text-white leading-tight">
-              Tecnologia para o
-              <span className="text-blue-400"> seu próximo nível.</span>
-            </h1>
+          <p
+            className="
+              text-lg
+              md:text-xl
+              text-slate-200
+              mt-6
+              leading-relaxed
+            "
+          >
+            {banner.subtitle}
+          </p>
 
-            <p className="text-slate-300 text-lg mt-8 max-w-xl leading-relaxed">
-              Smartphones, notebooks, acessórios, produtos gamer
-              e muito mais. Tudo em um só lugar.
-            </p>
+          {banner.button_text && (
+            <a
+              href={banner.button_link}
+              className="
+                inline-flex
+                items-center
+                gap-2
+                mt-8
+                bg-blue-600
+                hover:bg-blue-700
+                text-white
+                px-8
+                py-4
+                rounded-2xl
+                font-semibold
+                transition
+              "
+            >
+              {banner.button_text}
 
-            <div className="flex flex-wrap gap-4 mt-10">
-          <Link to="/produtos">
-  <Button>
-    Comprar Agora
-  </Button>
-</Link>
-
-              <Button variant="secondary">
-                Ver Ofertas
-              </Button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12">
-              <div className="flex items-center gap-3 text-slate-300">
-                <ShieldCheck size={22} />
-                <span className="text-sm">Compra Segura</span>
-              </div>
-
-              <div className="flex items-center gap-3 text-slate-300">
-                <Truck size={22} />
-                <span className="text-sm">Entrega Rápida</span>
-              </div>
-
-              <div className="flex items-center gap-3 text-slate-300">
-                <CreditCard size={22} />
-                <span className="text-sm">Até 12x</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Produtos Flutuantes */}
-          <div className="relative h-137.5 hidden lg:block">
-            {/* Card 1 */}
-            <div className="absolute top-0 left-0 bg-white rounded-3xl p-5 shadow-2xl w-64">
-              <img
-                src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9"
-                alt="Smartphone"
-                className="rounded-2xl h-44 w-full object-cover"
-              />
-
-              <h3 className="font-bold mt-4">
-                Smartphones Premium
-              </h3>
-
-              <p className="text-slate-500 text-sm mt-2">
-                Últimos lançamentos
-              </p>
-            </div>
-
-            {/* Card 2 */}
-            <div className="absolute top-40 right-0 bg-white rounded-3xl p-5 shadow-2xl w-72">
-              <img
-                src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853"
-                alt="Notebook"
-                className="rounded-2xl h-44 w-full object-cover"
-              />
-
-              <h3 className="font-bold mt-4">
-                Notebooks e Informática
-              </h3>
-
-              <p className="text-slate-500 text-sm mt-2">
-                Performance profissional
-              </p>
-            </div>
-
-            {/* Card 3 */}
-            <div className="absolute bottom-0 left-16 bg-white rounded-3xl p-5 shadow-2xl w-64">
-              <img
-                src="https://images.unsplash.com/photo-1546435770-a3e426bf472b"
-                alt="Headset Gamer"
-                className="rounded-2xl h-44 w-full object-cover"
-              />
-
-              <h3 className="font-bold mt-4">
-                Setup Gamer
-              </h3>
-
-              <p className="text-slate-500 text-sm mt-2">
-                Equipamentos de alta qualidade
-              </p>
-            </div>
-          </div>
+              <ArrowRight size={20} />
+            </a>
+          )}
         </div>
-      </Container>
+      </div>
     </section>
   );
 }
+

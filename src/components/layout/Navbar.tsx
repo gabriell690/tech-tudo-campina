@@ -6,12 +6,13 @@ Search,
 ShoppingCart,
 User,
 X,
-MapPin,
 } from "lucide-react";
 
+import logo from "../../assets/logo.png";
 import Container from "../ui/Container";
 import { useCart } from "../../context/CartContext";
 import { Link } from "react-router-dom";
+
 
 export default function Navbar() {
 const [mobileOpen, setMobileOpen] = useState(false);
@@ -134,187 +135,163 @@ onClick={() => setMobileOpen(false)}
     </div>
   </aside>
 
-  <header className="sticky top-0 z-50">
-    <div className="bg-slate-950 border-b border-slate-800">
-      <Container>
-        <div className="h-10 flex items-center justify-between text-sm">
-          <span className="text-slate-300">
-            ⚡ Frete grátis acima de R$ 299
-          </span>
+ <header className="fixed top-0 left-0 right-0 z-50 shadow-lg">
+  {/* Barra Superior */}
+  <div className="bg-[#071A35] border-b border-blue-900">
+  
+  </div>
 
-          <div className="hidden md:flex items-center gap-2 text-slate-400">
-            <MapPin size={14} />
-            Campina Grande - PB
-          </div>
-        </div>
-      </Container>
-    </div>
+  {/* Navbar Principal */}
+  <div className="bg-[#071A35] border-b border-blue-900">
+    <Container>
+      <div className="h-24 flex items-center gap-6">
 
-    <div
-      className="
-        backdrop-blur-xl
-        bg-white/90
-        border-b
-        border-slate-200
-      "
-    >
-      <Container>
-        <div className="h-20 flex items-center justify-between gap-6">
-          <button
-            className="lg:hidden"
-            onClick={() => setMobileOpen(true)}
-          >
-            <Menu />
-          </button>
+        <button
+          className="lg:hidden text-white"
+          onClick={() => setMobileOpen(true)}
+        >
+          <Menu />
+        </button>
 
-          <div className="flex items-center gap-4">
-            <div
+        <Link
+          to="/"
+          className="flex items-center shrink-0"
+        >
+          <img
+            src={logo}
+            alt="Tech Tudo Campina"
+            className="h-40 w-auto"
+          />
+        </Link>
+
+        <div className="hidden md:flex flex-1 max-w-3xl mx-auto">
+          <div className="relative w-full">
+            <input
+              type="text"
+              placeholder="Busque smartphones, notebooks, acessórios..."
               className="
-                w-12
-                h-12
+                w-full
+                h-14
                 rounded-2xl
-                bg-linear-to-br
-                from-blue-500
-                via-blue-600
-                to-blue-700
+                bg-white
+                border
+                border-slate-200
+                px-6
+                pr-16
+                text-slate-900
+                outline-none
+                focus:border-blue-500
+              "
+            />
+
+            <button
+              className="
+                absolute
+                right-2
+                top-1/2
+                -translate-y-1/2
+                w-10
+                h-10
+                rounded-xl
+                bg-blue-600
+                hover:bg-blue-700
                 text-white
                 flex
                 items-center
                 justify-center
-                font-bold
-                shadow-xl
               "
             >
-              TT
-            </div>
-
-            <div>
-              <h1 className="font-bold text-slate-900">
-                Tech Tudo Campina
-              </h1>
-
-              <p className="text-xs text-slate-500">
-                Tecnologia Premium
-              </p>
-            </div>
-          </div>
-
-          <div className="hidden md:flex flex-1 max-w-3xl">
-            <div className="relative w-full">
-              <input
-                type="text"
-                placeholder="Busque smartphones, notebooks, acessórios..."
-                className="
-                  w-full
-                  h-14
-                  rounded-2xl
-                  border
-                  border-slate-200
-                  bg-slate-50
-                  px-6
-                  pr-16
-                  outline-none
-                  focus:border-blue-500
-                  focus:bg-white
-                  transition
-                "
-              />
-
-              <button
-                className="
-                  absolute
-                  right-2
-                  top-1/2
-                  -translate-y-1/2
-                  w-10
-                  h-10
-                  rounded-xl
-                  bg-blue-600
-                  text-white
-                  flex
-                  items-center
-                  justify-center
-                "
-              >
-                <Search size={18} />
-              </button>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-6">
-            <Link
-  to="/admin/login"
-  className="
-    hidden
-    md:flex
-    items-center
-    gap-2s
-    text-slate-600
-    hover:text-blue-600
-    transition
-  "
->
-  <User size={20} />
-  <span>Login</span>
-</Link>
-
-            <Link
-  to="/carrinho"
-  className="
-    relative
-    text-slate-600
-    hover:text-blue-600
-    transition
-  "
->
-  <ShoppingCart size={24} />
-
-  <span
-    className="
-      absolute
-      -top-2
-      -right-2
-      min-w-5
-      h-5
-      px-1
-      rounded-full
-      bg-red-500
-      text-white
-      text-xs
-      flex
-      items-center
-      justify-center
-    "
-  >
-    {cartCount}
-  </span>
-</Link>
+              <Search size={18} />
+            </button>
           </div>
         </div>
-      </Container>
-    </div>
 
-    <div className="bg-white border-b border-slate-200">
-      <Container>
-        <nav className="hidden lg:flex items-center gap-8 h-14">
-          {categories.map((category) => (
-            <button
-              key={category}
+        <div className="flex items-center gap-6">
+
+          <Link
+            to="/admin/login"
+            className="
+              hidden
+              md:flex
+              items-center
+              gap-2
+              text-white
+              hover:text-yellow-400
+              transition
+            "
+          >
+            <User size={20} />
+            <span>Login</span>
+          </Link>
+
+          <Link
+            to="/carrinho"
+            className="
+              relative
+              text-white
+              hover:text-yellow-400
+              transition
+            "
+          >
+            <ShoppingCart size={24} />
+
+            <span
               className="
-                text-sm
-                font-medium
-                text-slate-600
-                hover:text-blue-600
-                transition
+                absolute
+                -top-2
+                -right-2
+                min-w-5
+                h-5
+                px-1
+                rounded-full
+                bg-red-500
+                text-white
+                text-xs
+                flex
+                items-center
+                justify-center
               "
             >
-              {category}
-            </button>
-          ))}
-        </nav>
-      </Container>
-    </div>
-  </header>
+              {cartCount}
+            </span>
+          </Link>
+
+        </div>
+      </div>
+    </Container>
+  </div>
+
+  {/* Categorias */}
+  <div className="bg-white border-b border-slate-200">
+    <Container>
+      <nav
+        className="
+          hidden
+          lg:flex
+          items-center
+          justify-center
+          gap-10
+          h-10
+        "
+      >
+        {categories.map((category) => (
+          <button
+            key={category}
+            className="
+              text-sm
+              font-medium
+              text-slate-700
+              hover:text-blue-600
+              transition
+            "
+          >
+            {category}
+          </button>
+        ))}
+      </nav>
+    </Container>
+  </div>
+</header>
 </>
 );
 }

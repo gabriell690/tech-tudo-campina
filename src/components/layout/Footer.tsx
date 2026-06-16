@@ -15,7 +15,7 @@ return ( <footer className="bg-slate-950 text-white border-t border-slate-800"> 
                  w-14
                  h-14
                  rounded-2xl
-                 bg-gradient-to-br
+                 bg-linear-to-br
                  from-blue-500
                  via-blue-600
                  to-blue-700
@@ -27,8 +27,6 @@ return ( <footer className="bg-slate-950 text-white border-t border-slate-800"> 
                "
              >
 TT </div>
-
-```
             <div>
               <h2 className="text-2xl font-bold">
                 Tech Tudo Campina

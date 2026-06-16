@@ -1,190 +1,215 @@
 /* eslint-disable react-refresh/only-export-components */
-/* eslint-disable react-hooks/set-state-in-effect */
+
 import {
-createContext,
-useContext,
-useState,
-useEffect,
-type ReactNode,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
 } from "react";
 
 import type { Product } from "../types/product";
 
-interface CartItem extends Product {
-quantity: number;
+export interface CartItem extends Product {
+  quantity: number;
 }
 
 interface CartContextData {
-cartItems: CartItem[];
+  cartItems: CartItem[];
 
-cartCount: number;
+  cartCount: number;
 
-addToCart: (
-product: Product
-) => void;
+  addToCart: (
+    product: Product
+  ) => void;
 
-removeFromCart: (
-id: string
-) => void;
+  removeFromCart: (
+    id: string
+  ) => void;
 
-increaseQuantity: (
-id: string
-) => void;
+  increaseQuantity: (
+    id: string
+  ) => void;
 
-decreaseQuantity: (
-id: string
-) => void;
+  decreaseQuantity: (
+    id: string
+  ) => void;
 
-clearCart: () => void;
+  clearCart: () => void;
+
+  total: number;
 }
 
 const CartContext =
-createContext<CartContextData>(
-{} as CartContextData
-);
-
-export function CartProvider({
-children,
-}: {
-children: ReactNode;
-}) {
-const [cartItems, setCartItems] =
-useState<CartItem[]>([]);
-
-useEffect(() => {
-const storedCart =
-localStorage.getItem(
-"techTudoCart"
-);
-
-if (storedCart) {
-  setCartItems(
-    JSON.parse(storedCart)
+  createContext<CartContextData>(
+    {} as CartContextData
   );
+
+interface CartProviderProps {
+  children: ReactNode;
 }
 
+export function CartProvider({
+  children,
+}: CartProviderProps) {
+  const [cartItems, setCartItems] =
+    useState<CartItem[]>([]);
 
-}, []);
+  /* Carrega carrinho */
+  useEffect(() => {
+    const storedCart =
+      localStorage.getItem(
+        "techTudoCart"
+      );
 
-useEffect(() => {
-localStorage.setItem(
-"techTudoCart",
-JSON.stringify(cartItems)
-);
-}, [cartItems]);
+    if (storedCart) {
+      try {
+        setCartItems(
+          JSON.parse(storedCart)
+        );
+      } catch {
+        localStorage.removeItem(
+          "techTudoCart"
+        );
+      }
+    }
+  }, []);
 
-function addToCart(
-product: Product
-) {
-setCartItems((prev) => {
-const existing =
-prev.find(
-(item) =>
-item.id === product.id
-);
+  /* Salva carrinho */
+  useEffect(() => {
+    localStorage.setItem(
+      "techTudoCart",
+      JSON.stringify(cartItems)
+    );
+  }, [cartItems]);
 
-  if (existing) {
-    return prev.map((item) =>
-      item.id === product.id
-        ? {
-            ...item,
-            quantity:
-              item.quantity + 1,
-          }
-        : item
+  function addToCart(
+    product: Product
+  ) {
+    setCartItems((prev) => {
+      const existingProduct =
+        prev.find(
+          (item) =>
+            item.id === product.id
+        );
+
+      if (existingProduct) {
+        return prev.map((item) =>
+          item.id === product.id
+            ? {
+                ...item,
+                quantity:
+                  item.quantity + 1,
+              }
+            : item
+        );
+      }
+
+      return [
+        ...prev,
+        {
+          ...product,
+          quantity: 1,
+        },
+      ];
+    });
+  }
+
+  function increaseQuantity(
+    id: string
+  ) {
+    setCartItems((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              quantity:
+                item.quantity + 1,
+            }
+          : item
+      )
     );
   }
 
-  return [
-    ...prev,
-    {
-      ...product,
-      quantity: 1,
-    },
-  ];
-});
+  function decreaseQuantity(
+    id: string
+  ) {
+    setCartItems((prev) =>
+      prev
+        .map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                quantity:
+                  item.quantity - 1,
+              }
+            : item
+        )
+        .filter(
+          (item) =>
+            item.quantity > 0
+        )
+    );
+  }
 
+  function removeFromCart(
+    id: string
+  ) {
+    setCartItems((prev) =>
+      prev.filter(
+        (item) =>
+          item.id !== id
+      )
+    );
+  }
 
-}
+  function clearCart() {
+    setCartItems([]);
+  }
 
-function increaseQuantity(
-id: string
-) {
-setCartItems((prev) =>
-prev.map((item) =>
-item.id === id
-? {
-...item,
-quantity:
-item.quantity + 1,
-}
-: item
-)
-);
-}
+  const cartCount =
+    cartItems.reduce(
+      (acc, item) =>
+        acc + item.quantity,
+      0
+    );
 
-function decreaseQuantity(
-id: string
-) {
-setCartItems((prev) =>
-prev
-.map((item) =>
-item.id === id
-? {
-...item,
-quantity:
-item.quantity - 1,
-}
-: item
-)
-.filter(
-(item) =>
-item.quantity > 0
-)
-);
-}
+  const total =
+    cartItems.reduce(
+      (acc, item) =>
+        acc +
+        item.price *
+          item.quantity,
+      0
+    );
 
-function removeFromCart(
-id: string
-) {
-setCartItems((prev) =>
-prev.filter(
-(item) =>
-item.id !== id
-)
-);
-}
+  return (
+    <CartContext.Provider
+      value={{
+        cartItems,
 
-function clearCart() {
-setCartItems([]);
-}
+        cartCount,
 
-const cartCount =
-cartItems.reduce(
-(total, item) =>
-total + item.quantity,
-0
-);
+        total,
 
-return (
-<CartContext.Provider
-value={{
-cartItems,
-cartCount,
-addToCart,
-removeFromCart,
-increaseQuantity,
-decreaseQuantity,
-clearCart,
-}}
->
-{children}
-</CartContext.Provider>
-);
+        addToCart,
+
+        removeFromCart,
+
+        increaseQuantity,
+
+        decreaseQuantity,
+
+        clearCart,
+      }}
+    >
+      {children}
+    </CartContext.Provider>
+  );
 }
 
 export function useCart() {
-return useContext(
-CartContext
-);
+  return useContext(
+    CartContext
+  );
 }

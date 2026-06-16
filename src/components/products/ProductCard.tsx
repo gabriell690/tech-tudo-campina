@@ -1,205 +1,314 @@
 import {
-Heart,
-ShoppingCart,
-Star,
-Eye,
+  Heart,
+  ShoppingCart,
+  Star,
+  Eye,
 } from "lucide-react";
 
-import type { Product } from "../../types/product";
+import { Link } from "react-router-dom";
+
 import { useCart } from "../../context/CartContext";
+import type { Product } from "../../types/product";
 
 type ProductCardProps = {
-product: Product;
+  product: Product;
 };
 
 export default function ProductCard({
-product,
+  product,
 }: ProductCardProps) {
-const { addToCart } = useCart();
+  const { addToCart } = useCart();
 
-const {
-name,
-image,
-price,
-oldPrice,
-} = product;
+  const discount =
+    product.old_price
+      ? Math.round(
+          ((product.old_price -
+            product.price) /
+            product.old_price) *
+            100
+        )
+      : 0;
 
-const discount =
-oldPrice
-? Math.round(
-((oldPrice - price) / oldPrice) * 100
-)
-: 0;
-
-return ( <div
-   className="
-     group
-     relative
-     overflow-hidden
-     rounded-3xl
-     border
-     border-slate-200
-     bg-white
-     transition-all
-     duration-300
-     hover:-translate-y-2
-     hover:shadow-2xl
-   "
- >
-{oldPrice && ( <div
-       className="
-         absolute
-         top-4
-         left-4
-         z-20
-         rounded-full
-         bg-red-500
-         px-3
-         py-1
-         text-xs
-         font-bold
-         text-white
-       "
-     >
--{discount}% </div>
-)}
-
-```
-  <button
-    className="
-      absolute
-      top-4
-      right-4
-      z-20
-      w-10
-      h-10
-      rounded-full
-      bg-white
-      shadow-md
-      flex
-      items-center
-      justify-center
-      opacity-0
-      group-hover:opacity-100
-      transition
-    "
-  >
-    <Heart size={18} />
-  </button>
-
-  <div className="relative bg-slate-50 overflow-hidden">
-    <img
-      src={image}
-      alt={name}
-      loading="lazy"
+  return (
+    <article
       className="
-        w-full
-        h-72
-        object-cover
-        group-hover:scale-105
-        transition-transform
-        duration-500
-      "
-    />
-
-    <div
-      className="
-        absolute
-        inset-0
-        bg-black/10
-        opacity-0
-        group-hover:opacity-100
-        transition
-      "
-    />
-
-    <button
-      className="
-        absolute
-        bottom-4
-        left-1/2
-        -translate-x-1/2
+        group
+        relative
+        overflow-hidden
+        rounded-3xl
+        border
+        border-slate-200
         bg-white
-        px-4
-        py-2
-        rounded-xl
-        shadow-lg
-        flex
-        items-center
-        gap-2
-        text-sm
-        font-medium
-        opacity-0
-        group-hover:opacity-100
-        transition
+        shadow-sm
+        transition-all
+        duration-300
+        hover:-translate-y-1
+        hover:shadow-xl
       "
     >
-      <Eye size={16} />
-      Visualizar
-    </button>
-  </div>
-
-  <div className="p-6">
-    <div className="flex items-center gap-1 text-yellow-500">
-      {[...Array(5)].map((_, index) => (
-        <Star
-          key={index}
-          size={14}
-          fill="currentColor"
-        />
-      ))}
-
-      <span className="ml-2 text-xs text-slate-500">
-        5.0
-      </span>
-    </div>
-
-    <h3 className="mt-4 font-semibold text-slate-900 leading-relaxed min-h-14">
-      {name}
-    </h3>
-
-    <div className="mt-5">
-      {oldPrice && (
-        <p className="text-slate-400 line-through text-sm">
-          R$ {oldPrice.toFixed(2)}
-        </p>
+      {/* Desconto */}
+      {product.old_price && (
+        <div
+          className="
+            absolute
+            top-4
+            left-4
+            z-20
+            rounded-full
+            bg-red-500
+            px-3
+            py-1
+            text-xs
+            font-bold
+            text-white
+          "
+        >
+          -{discount}%
+        </div>
       )}
 
-      <p className="text-3xl font-bold text-slate-900">
-        R$ {price.toFixed(2)}
-      </p>
+      {/* Favorito */}
+      <button
+        className="
+          absolute
+          top-4
+          right-4
+          z-20
+          w-10
+          h-10
+          rounded-full
+          bg-white
+          shadow-md
+          flex
+          items-center
+          justify-center
+          opacity-0
+          group-hover:opacity-100
+          transition
+        "
+      >
+        <Heart size={18} />
+      </button>
 
-      <p className="text-sm text-green-600 mt-1">
-        até 12x sem juros
-      </p>
-    </div>
+      {/* Imagem */}
+      <div
+        className="
+          relative
+          bg-slate-50
+          overflow-hidden
+        "
+      >
+        <img
+          src={product.image_url}
+          alt={product.name}
+          loading="lazy"
+          className="
+            w-full
+            h-80
+            object-cover
+            transition-transform
+            duration-500
+            group-hover:scale-105
+          "
+        />
 
-    <button
-      onClick={() => addToCart(product)}
-      className="
-        mt-6
-        w-full
-        bg-gradient-to-r
-        from-blue-600
-        to-blue-700
-        hover:from-blue-700
-        hover:to-blue-800
-        text-white
-        rounded-2xl
-        py-3
-        flex
-        items-center
-        justify-center
-        gap-2
-        font-medium
-        transition
-      "
-    >
-      <ShoppingCart size={18} />
-      Comprar Agora
-    </button>
-  </div>
-</div>
+        <div
+          className="
+            absolute
+            inset-0
+            bg-black/10
+            opacity-0
+            group-hover:opacity-100
+            transition
+          "
+        />
 
-);
+        <Link
+          to={`/produto/${product.slug}`}
+          className="
+            absolute
+            bottom-4
+            left-1/2
+            -translate-x-1/2
+            bg-white
+            px-4
+            py-2
+            rounded-xl
+            shadow-lg
+            flex
+            items-center
+            gap-2
+            text-sm
+            font-medium
+            opacity-0
+            group-hover:opacity-100
+            transition
+          "
+        >
+          <Eye size={16} />
+          Visualizar
+        </Link>
+      </div>
+
+      {/* Conteúdo */}
+      <div className="p-6">
+
+        {/* Avaliação */}
+        <div
+          className="
+            flex
+            items-center
+            gap-1
+            text-yellow-500
+          "
+        >
+          {[...Array(5)].map(
+            (_, index) => (
+              <Star
+                key={index}
+                size={14}
+                fill="currentColor"
+              />
+            )
+          )}
+
+          <span
+            className="
+              ml-2
+              text-xs
+              text-slate-500
+            "
+          >
+            5.0
+          </span>
+        </div>
+
+        {/* Nome */}
+        <h3
+          className="
+            mt-4
+            font-semibold
+            text-slate-900
+            leading-relaxed
+            min-h-15
+          "
+        >
+          {product.name}
+        </h3>
+
+        {/* Marca */}
+        <p
+          className="
+            text-sm
+            text-slate-500
+            mt-2
+          "
+        >
+          {product.brand}
+        </p>
+
+        {/* Preços */}
+        <div className="mt-5">
+          {product.old_price && (
+            <p
+              className="
+                text-slate-400
+                line-through
+                text-sm
+              "
+            >
+              R$
+              {" "}
+              {Number(
+                product.old_price
+              ).toFixed(2)}
+            </p>
+          )}
+
+          <p
+            className="
+              text-3xl
+              font-bold
+              text-slate-900
+            "
+          >
+            R$
+            {" "}
+            {Number(
+              product.price
+            ).toFixed(2)}
+          </p>
+
+          <p
+            className="
+              text-sm
+              text-green-600
+              mt-1
+            "
+          >
+            12x de R$
+            {" "}
+            {(
+              Number(
+                product.price
+              ) / 12
+            ).toFixed(2)}
+          </p>
+        </div>
+
+        {/* Botões */}
+        <div
+          className="
+            mt-6
+            flex
+            flex-col
+            gap-3
+          "
+        >
+          <button
+            onClick={() =>
+              addToCart(product)
+            }
+            className="
+              w-full
+              bg-blue-600
+              hover:bg-blue-700
+              text-white
+              rounded-2xl
+              py-3
+              flex
+              items-center
+              justify-center
+              gap-2
+              font-medium
+              transition
+            "
+          >
+            <ShoppingCart
+              size={18}
+            />
+
+            Adicionar ao Carrinho
+          </button>
+
+          <Link
+            to={`/produto/${product.slug}`}
+            className="
+              w-full
+              border
+              border-slate-200
+              rounded-2xl
+              py-3
+              text-center
+              font-medium
+              hover:bg-slate-50
+              transition
+            "
+          >
+            Ver Detalhes
+          </Link>
+        </div>
+      </div>
+    </article>
+  );
 }

@@ -2,8 +2,9 @@
 import { useState } from "react";
 
 import {
-  Lock,
+  User,
   Mail,
+  Lock,
   Loader2,
 } from "lucide-react";
 
@@ -14,9 +15,12 @@ import {
 
 import { supabase } from "../../lib/supabase";
 
-export default function AdminLogin() {
+export default function Register() {
   const navigate =
     useNavigate();
+
+  const [name, setName] =
+    useState("");
 
   const [email, setEmail] =
     useState("");
@@ -24,35 +28,60 @@ export default function AdminLogin() {
   const [password, setPassword] =
     useState("");
 
+  const [
+    confirmPassword,
+    setConfirmPassword,
+  ] = useState("");
+
   const [loading, setLoading] =
     useState(false);
 
-  async function handleLogin(
+  async function handleRegister(
     e: React.FormEvent
   ) {
     e.preventDefault();
+
+    if (
+      password !==
+      confirmPassword
+    ) {
+      alert(
+        "As senhas não coincidem."
+      );
+      return;
+    }
 
     try {
       setLoading(true);
 
       const {
         error,
-      } = await supabase.auth.signInWithPassword(
-        {
-          email,
-          password,
-        }
-      );
+      } = await supabase.auth.signUp({
+        email,
+        password,
+
+        options: {
+          data: {
+            name,
+          },
+        },
+      });
 
       if (error) {
         throw error;
       }
 
-      navigate("/admin");
+      alert(
+        "Administrador criado com sucesso!"
+      );
+
+      navigate(
+        "/admin/login"
+      );
     } catch (error: any) {
       alert(
         error.message ||
-          "Erro ao realizar login."
+          "Erro ao criar administrador."
       );
     } finally {
       setLoading(false);
@@ -63,7 +92,7 @@ export default function AdminLogin() {
     <section
       className="
         min-h-screen
-        bg-linear-to-br
+       bg-gradient-to-br
         from-slate-950
         via-blue-950
         to-slate-900
@@ -78,7 +107,7 @@ export default function AdminLogin() {
           w-full
           max-w-md
           bg-white
-          rounded-4xl
+         rounded-[32px]
           p-8
           shadow-2xl
         "
@@ -91,7 +120,7 @@ export default function AdminLogin() {
               h-16
               mx-auto
               rounded-2xl
-              bg-linear-to-br
+              bg-gradient-to-br
               from-blue-500
               to-blue-700
               flex
@@ -112,7 +141,7 @@ export default function AdminLogin() {
               mt-5
             "
           >
-            Painel Admin
+            Criar Administrador
           </h1>
 
           <p
@@ -121,18 +150,73 @@ export default function AdminLogin() {
               mt-2
             "
           >
-            Entre para gerenciar
-            sua loja.
+            Cadastre um novo
+            administrador para
+            a loja.
           </p>
 
         </div>
 
         <form
           onSubmit={
-            handleLogin
+            handleRegister
           }
           className="mt-8"
         >
+
+          {/* Nome */}
+          <div className="mb-5">
+
+            <label
+              className="
+                block
+                mb-2
+                font-medium
+              "
+            >
+              Nome
+            </label>
+
+            <div className="relative">
+
+              <User
+                size={18}
+                className="
+                  absolute
+                  left-4
+                  top-1/2
+                  -translate-y-1/2
+                  text-slate-400
+                "
+              />
+
+              <input
+                type="text"
+                value={name}
+                onChange={(e) =>
+                  setName(
+                    e.target.value
+                  )
+                }
+                placeholder="Administrador"
+                className="
+                  w-full
+                  border
+                  border-slate-300
+                  rounded-2xl
+                  pl-11
+                  pr-4
+                  py-3
+                  outline-none
+                  focus:border-blue-500
+                "
+                required
+              />
+
+            </div>
+          </div>
+
+          {/* Email */}
           <div className="mb-5">
 
             <label
@@ -184,7 +268,8 @@ export default function AdminLogin() {
             </div>
           </div>
 
-          <div>
+          {/* Senha */}
+          <div className="mb-5">
 
             <label
               className="
@@ -235,6 +320,60 @@ export default function AdminLogin() {
             </div>
           </div>
 
+          {/* Confirmar Senha */}
+          <div>
+
+            <label
+              className="
+                block
+                mb-2
+                font-medium
+              "
+            >
+              Confirmar Senha
+            </label>
+
+            <div className="relative">
+
+              <Lock
+                size={18}
+                className="
+                  absolute
+                  left-4
+                  top-1/2
+                  -translate-y-1/2
+                  text-slate-400
+                "
+              />
+
+              <input
+                type="password"
+                value={
+                  confirmPassword
+                }
+                onChange={(e) =>
+                  setConfirmPassword(
+                    e.target.value
+                  )
+                }
+                placeholder="********"
+                className="
+                  w-full
+                  border
+                  border-slate-300
+                  rounded-2xl
+                  pl-11
+                  pr-4
+                  py-3
+                  outline-none
+                  focus:border-blue-500
+                "
+                required
+              />
+
+            </div>
+          </div>
+
           <button
             type="submit"
             disabled={loading}
@@ -261,15 +400,15 @@ export default function AdminLogin() {
                   size={18}
                   className="animate-spin"
                 />
-                Entrando...
+                Criando...
               </>
             ) : (
-              "Entrar"
+              "Criar Administrador"
             )}
           </button>
 
           <Link
-            to="/admin/register"
+            to="/admin/login"
             className="
               block
               text-center
@@ -279,20 +418,9 @@ export default function AdminLogin() {
               font-medium
             "
           >
-            Criar Administrador
+            Já possui acesso?
+            Entrar
           </Link>
-          <Link
-  to="/admin/forgot-password"
-  className="
-    block
-    text-center
-    mt-4
-    text-slate-500
-    hover:text-blue-600
-  "
->
-  Esqueceu sua senha?
-</Link>
 
         </form>
       </div>

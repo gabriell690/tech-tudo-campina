@@ -1,214 +1,409 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import AdminSidebar from "../../components/admin/AdminSidebar";
-
-import { saveProduct } from "../../services/productStorage";
+import { supabase } from "../../lib/supabase";
 
 export default function ProductForm() {
-const navigate =
-useNavigate();
+  const navigate = useNavigate();
 
-const [name, setName] =
-useState("");
+  const [loading, setLoading] = useState(false);
 
-const [brand, setBrand] =
-useState("");
+  const [name, setName] = useState("");
+  const [brand, setBrand] = useState("");
+  const [category, setCategory] =
+    useState("Smartphones");
 
-const [category, setCategory] =
-useState("Smartphones");
+  const [stock, setStock] = useState("");
+  const [price, setPrice] = useState("");
+  const [oldPrice, setOldPrice] =
+    useState("");
 
-const [stock, setStock] =
-useState("");
+  const [description, setDescription] =
+    useState("");
 
-const [price, setPrice] =
-useState("");
+  const [featured, setFeatured] =
+    useState(false);
 
-const [image, setImage] =
-useState("");
+  const [active, setActive] =
+    useState(true);
 
-const [description, setDescription] =
-useState("");
+  const [imageFile, setImageFile] =
+    useState<File | null>(null);
 
-function handleSubmit(
-e: React.FormEvent
-) {
-e.preventDefault();
+  async function handleSubmit(
+    e: React.FormEvent
+  ) {
+    e.preventDefault();
 
-const product = {
-  id: crypto.randomUUID(),
+    try {
+      setLoading(true);
 
-  slug: name
-    .toLowerCase()
-    .replaceAll(" ", "-"),
+      let imageUrl = "";
 
-  name,
+      if (imageFile) {
+        const fileName =
+          `${Date.now()}-${imageFile.name}`;
 
-  description,
+        const {
+          error: uploadError,
+        } = await supabase.storage
+          .from("products")
+          .upload(fileName, imageFile);
 
-  category,
-
-  brand,
-
-  stock: Number(stock),
-
-  price: Number(price),
-
-  image,
-
-  active: true,
-
-  featured: false,
-};
-
-saveProduct(product as any);
-
-navigate(
-  "/admin/products"
-);
-
-}
-
-return ( <div className="flex"> <AdminSidebar />
-
-  <main className="flex-1 bg-slate-100 min-h-screen p-8">
-    <div className="max-w-5xl">
-      <h1 className="text-4xl font-bold">
-        Novo Produto
-      </h1>
-
-      <form
-        onSubmit={
-          handleSubmit
+        if (uploadError) {
+          throw uploadError;
         }
+
+        const { data } =
+          supabase.storage
+            .from("products")
+            .getPublicUrl(fileName);
+
+        imageUrl = data.publicUrl;
+      }
+
+      const slug = name
+        .toLowerCase()
+        .trim()
+        .replaceAll(" ", "-");
+
+      const { error } =
+        await supabase
+          .from("products")
+          .insert({
+            name,
+            slug,
+            description,
+
+            price: Number(price),
+
+            old_price: oldPrice
+              ? Number(oldPrice)
+              : null,
+
+            stock: Number(stock),
+
+            category,
+            brand,
+
+            image_url: imageUrl,
+
+            featured,
+            active,
+          });
+
+      if (error) {
+        throw error;
+      }
+
+      alert(
+        "Produto cadastrado com sucesso!"
+      );
+
+      navigate("/admin/products");
+    } catch (error) {
+      console.error(error);
+
+      alert(
+        "Erro ao cadastrar produto."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="flex">
+      <AdminSidebar />
+
+      <main
         className="
-          bg-white
-          rounded-3xl
+          flex-1
+          bg-slate-100
+          min-h-screen
           p-8
-          mt-8
         "
       >
-        <div className="grid md:grid-cols-2 gap-6">
-          <input
-            placeholder="Nome"
-            value={name}
-            onChange={(e) =>
-              setName(
-                e.target.value
-              )
-            }
-            className="border rounded-2xl p-3"
-          />
+        <div className="max-w-5xl">
+          <h1 className="text-4xl font-bold">
+            Novo Produto
+          </h1>
 
-          <input
-            placeholder="Marca"
-            value={brand}
-            onChange={(e) =>
-              setBrand(
-                e.target.value
-              )
-            }
-            className="border rounded-2xl p-3"
-          />
-
-          <select
-            value={category}
-            onChange={(e) =>
-              setCategory(
-                e.target.value
-              )
-            }
-            className="border rounded-2xl p-3"
+          <form
+            onSubmit={handleSubmit}
+            className="
+              bg-white
+              rounded-3xl
+              p-8
+              mt-8
+              shadow-sm
+            "
           >
-            <option>
-              Smartphones
-            </option>
+            <div
+              className="
+                grid
+                md:grid-cols-2
+                gap-6
+              "
+            >
+              <input
+                placeholder="Nome do Produto"
+                value={name}
+                onChange={(e) =>
+                  setName(
+                    e.target.value
+                  )
+                }
+                className="
+                  border
+                  rounded-2xl
+                  p-3
+                "
+                required
+              />
 
-            <option>
-              Notebooks
-            </option>
+              <input
+                placeholder="Marca"
+                value={brand}
+                onChange={(e) =>
+                  setBrand(
+                    e.target.value
+                  )
+                }
+                className="
+                  border
+                  rounded-2xl
+                  p-3
+                "
+                required
+              />
 
-            <option>
-              Games
-            </option>
+              <select
+                value={category}
+                onChange={(e) =>
+                  setCategory(
+                    e.target.value
+                  )
+                }
+                className="
+                  border
+                  rounded-2xl
+                  p-3
+                "
+              >
+                <option>
+                  Smartphones
+                </option>
 
-            <option>
-              Acessórios
-            </option>
-          </select>
+                <option>
+                  Notebooks
+                </option>
 
-          <input
-            placeholder="Estoque"
-            value={stock}
-            onChange={(e) =>
-              setStock(
-                e.target.value
-              )
-            }
-            className="border rounded-2xl p-3"
-          />
+                <option>
+                  Informática
+                </option>
 
-          <input
-            placeholder="Preço"
-            value={price}
-            onChange={(e) =>
-              setPrice(
-                e.target.value
-              )
-            }
-            className="border rounded-2xl p-3"
-          />
+                <option>
+                  Games
+                </option>
 
-          <input
-            placeholder="Imagem URL"
-            value={image}
-            onChange={(e) =>
-              setImage(
-                e.target.value
-              )
-            }
-            className="border rounded-2xl p-3"
-          />
+                <option>
+                  Smartwatches
+                </option>
+
+                <option>
+                  Redes
+                </option>
+
+                <option>
+                  TV & Streaming
+                </option>
+
+                <option>
+                  Acessórios
+                </option>
+              </select>
+
+              <input
+                type="number"
+                placeholder="Estoque"
+                value={stock}
+                onChange={(e) =>
+                  setStock(
+                    e.target.value
+                  )
+                }
+                className="
+                  border
+                  rounded-2xl
+                  p-3
+                "
+                required
+              />
+
+              <input
+                type="number"
+                step="0.01"
+                placeholder="Preço"
+                value={price}
+                onChange={(e) =>
+                  setPrice(
+                    e.target.value
+                  )
+                }
+                className="
+                  border
+                  rounded-2xl
+                  p-3
+                "
+                required
+              />
+
+              <input
+                type="number"
+                step="0.01"
+                placeholder="Preço Antigo"
+                value={oldPrice}
+                onChange={(e) =>
+                  setOldPrice(
+                    e.target.value
+                  )
+                }
+                className="
+                  border
+                  rounded-2xl
+                  p-3
+                "
+              />
+
+              <div className="md:col-span-2">
+                <label
+                  className="
+                    block
+                    mb-2
+                    font-medium
+                  "
+                >
+                  Imagem do Produto
+                </label>
+
+                <input
+                  type="file"
+                  accept="
+                    image/png,
+                    image/jpeg,
+                    image/jpg,
+                    image/webp
+                  "
+                  onChange={(e) =>
+                    setImageFile(
+                      e.target
+                        .files?.[0] ||
+                        null
+                    )
+                  }
+                  className="
+                    border
+                    rounded-2xl
+                    p-3
+                    w-full
+                  "
+                  required
+                />
+              </div>
+            </div>
+
+            <textarea
+              placeholder="Descrição do Produto"
+              value={description}
+              onChange={(e) =>
+                setDescription(
+                  e.target.value
+                )
+              }
+              className="
+                mt-6
+                border
+                rounded-2xl
+                p-4
+                w-full
+              "
+              rows={6}
+              required
+            />
+
+            <div
+              className="
+                mt-6
+                flex
+                gap-8
+              "
+            >
+              <label
+                className="
+                  flex
+                  items-center
+                  gap-2
+                "
+              >
+                <input
+                  type="checkbox"
+                  checked={featured}
+                  onChange={(e) =>
+                    setFeatured(
+                      e.target.checked
+                    )
+                  }
+                />
+
+                Destaque
+              </label>
+
+              <label
+                className="
+                  flex
+                  items-center
+                  gap-2
+                "
+              >
+                <input
+                  type="checkbox"
+                  checked={active}
+                  onChange={(e) =>
+                    setActive(
+                      e.target.checked
+                    )
+                  }
+                />
+
+                Ativo
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="
+                mt-8
+                bg-blue-600
+                hover:bg-blue-700
+                text-white
+                px-8
+                py-3
+                rounded-2xl
+                font-medium
+                transition
+                disabled:opacity-50
+              "
+            >
+              {loading
+                ? "Salvando..."
+                : "Salvar Produto"}
+            </button>
+          </form>
         </div>
-
-        <textarea
-          placeholder="Descrição"
-          value={
-            description
-          }
-          onChange={(e) =>
-            setDescription(
-              e.target.value
-            )
-          }
-          className="
-            mt-6
-            border
-            rounded-2xl
-            p-3
-            w-full
-          "
-          rows={6}
-        />
-
-        <button
-          type="submit"
-          className="
-            mt-8
-            bg-blue-600
-            text-white
-            px-8
-            py-3
-            rounded-2xl
-          "
-        >
-          Salvar Produto
-        </button>
-      </form>
+      </main>
     </div>
-  </main>
-</div>
-
-);
+  );
 }
