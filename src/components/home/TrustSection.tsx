@@ -24,7 +24,7 @@ return ( <section className="py-24 bg-white"> <Container> <div
        className="
          rounded-[40px]
          overflow-hidden
-         bg-gradient-to-br
+         bg-linear-to-br
          from-slate-950
          via-blue-950
          to-slate-900

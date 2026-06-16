@@ -1,120 +1,31 @@
-/* eslint-disable react-hooks/immutability */
-import { useEffect, useState } from "react";
-
-import { ArrowRight } from "lucide-react";
-
-import { supabase } from "../../lib/supabase";
-
-interface Banner {
-  id: string;
-  title: string;
-  subtitle: string;
-  image_url: string;
-  button_text: string;
-  button_link: string;
-  active: boolean;
-}
+import {
+  ArrowRight,
+  ShieldCheck,
+  Truck,
+  CreditCard,
+  Smartphone,
+  Laptop,
+  Headphones,
+} from "lucide-react";
 
 export default function Hero() {
-  const [banner, setBanner] =
-    useState<Banner | null>(null);
-
-  const [loading, setLoading] =
-    useState(true);
-
-  useEffect(() => {
-    loadBanner();
-  }, []);
-
-  async function loadBanner() {
-    try {
-      const { data } =
-        await supabase
-          .from("banners")
-          .select("*")
-          .eq("active", true)
-          .limit(1)
-          .single();
-
-      if (data) {
-        setBanner(data);
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  if (loading) {
-    return (
-      <section
-        className="
-          h-175
-          flex
-          items-center
-          justify-center
-          bg-slate-100
-        "
-      >
-        <p>Carregando banner...</p>
-      </section>
-    );
-  }
-
-  if (!banner) {
-    return (
-      <section
-        className="
-          h-175
-          flex
-          items-center
-          justify-center
-          bg-slate-100
-        "
-      >
-        <p>Nenhum banner ativo.</p>
-      </section>
-    );
-  }
-
   return (
     <section
       className="
         relative
-        min-h-175
-        flex
-        items-center
         overflow-hidden
+        bg-linear-to-br
+        from-slate-950
+        via-blue-950
+        to-slate-900
+        pt-32
+        pb-24
       "
     >
-      {/* Imagem */}
-      <div
-        className="
-          absolute
-          inset-0
-        "
-      >
-        <img
-          src={banner.image_url}
-          alt={banner.title}
-          className="
-            w-full
-            h-full
-            object-cover
-          "
-        />
+      {/* Glow */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-blue-600/20 blur-3xl rounded-full" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-500/10 blur-3xl rounded-full" />
 
-        <div
-          className="
-            absolute
-            inset-0
-            bg-black/60
-          "
-        />
-      </div>
-
-      {/* Conteúdo */}
       <div
         className="
           relative
@@ -122,14 +33,35 @@ export default function Hero() {
           max-w-7xl
           mx-auto
           px-6
-          w-full
+          grid
+          lg:grid-cols-2
+          gap-16
+          items-center
         "
       >
-        <div
-          className="
-            max-w-3xl
-          "
-        >
+        {/* Lado esquerdo */}
+        <div>
+          {/* Badge */}
+          <div
+            className="
+              inline-flex
+              items-center
+              gap-2
+              px-4
+              py-2
+              rounded-full
+              border
+              border-blue-500/30
+              bg-blue-500/10
+              text-blue-300
+              text-sm
+              mb-8
+            "
+          >
+            ⚡ Tecnologia com os melhores preços
+          </div>
+
+          {/* Título */}
           <h1
             className="
               text-5xl
@@ -139,47 +71,224 @@ export default function Hero() {
               leading-tight
             "
           >
-            {banner.title}
+            Tecnologia para
+            <br />
+            o seu próximo
+            <span className="block text-blue-500">
+              nível.
+            </span>
           </h1>
 
+          {/* Texto */}
           <p
             className="
+              mt-8
               text-lg
-              md:text-xl
-              text-slate-200
-              mt-6
+              text-slate-300
               leading-relaxed
+              max-w-xl
             "
           >
-            {banner.subtitle}
+            Smartphones, notebooks, acessórios,
+            produtos gamer e muito mais.
+            Tudo em um só lugar.
           </p>
 
-          {banner.button_text && (
+          {/* Botões */}
+          <div className="flex flex-wrap gap-4 mt-10">
             <a
-              href={banner.button_link}
+              href="/produtos"
               className="
                 inline-flex
                 items-center
                 gap-2
-                mt-8
                 bg-blue-600
                 hover:bg-blue-700
                 text-white
                 px-8
                 py-4
-                rounded-2xl
+                rounded-xl
                 font-semibold
-                transition
+                transition-all
               "
             >
-              {banner.button_text}
-
+              Comprar Agora
               <ArrowRight size={20} />
             </a>
-          )}
+
+            <a
+              href="/produtos"
+              className="
+                inline-flex
+                items-center
+                border
+                border-blue-600
+                text-blue-400
+                hover:bg-blue-600/10
+                px-8
+                py-4
+                rounded-xl
+                font-semibold
+                transition-all
+              "
+            >
+              Ver Ofertas
+            </a>
+          </div>
+
+          {/* Benefícios */}
+          <div
+            className="
+              flex
+              flex-wrap
+              gap-8
+              mt-12
+              text-slate-300
+            "
+          >
+            <div className="flex items-center gap-2">
+              <ShieldCheck size={18} />
+              <span>Compra Segura</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Truck size={18} />
+              <span>Entrega Rápida</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <CreditCard size={18} />
+              <span>Até 12x</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Lado direito */}
+        <div className="relative h-125 hidden lg:block">
+          {/* Smartphone */}
+          <div
+            className="
+              absolute
+              top-0
+              left-12
+              w-64
+              bg-white
+              rounded-3xl
+              p-4
+              shadow-2xl
+              hover:-translate-y-2
+              transition-all
+              duration-300
+            "
+          >
+            <div
+              className="
+                h-48
+                rounded-2xl
+                bg-slate-100
+                flex
+                items-center
+                justify-center
+              "
+            >
+              <Smartphone
+                size={100}
+                className="text-slate-700"
+              />
+            </div>
+
+            <h3 className="font-bold text-slate-900 mt-4">
+              Smartphones Premium
+            </h3>
+
+            <p className="text-sm text-slate-500 mt-1">
+              Últimos lançamentos
+            </p>
+          </div>
+
+          {/* Notebook */}
+          <div
+            className="
+              absolute
+              top-32
+              right-0
+              w-72
+              bg-white
+              rounded-3xl
+              p-4
+              shadow-2xl
+              hover:-translate-y-2
+              transition-all
+              duration-300
+            "
+          >
+            <div
+              className="
+                h-48
+                rounded-2xl
+                bg-slate-100
+                flex
+                items-center
+                justify-center
+              "
+            >
+              <Laptop
+                size={100}
+                className="text-slate-700"
+              />
+            </div>
+
+            <h3 className="font-bold text-slate-900 mt-4">
+              Notebooks e Informática
+            </h3>
+
+            <p className="text-sm text-slate-500 mt-1">
+              Performance profissional
+            </p>
+          </div>
+
+          {/* Acessórios */}
+          <div
+            className="
+              absolute
+              bottom-0
+              left-28
+              w-56
+              bg-white
+              rounded-3xl
+              p-4
+              shadow-2xl
+              hover:-translate-y-2
+              transition-all
+              duration-300
+            "
+          >
+            <div
+              className="
+                h-36
+                rounded-2xl
+                bg-slate-100
+                flex
+                items-center
+                justify-center
+              "
+            >
+              <Headphones
+                size={80}
+                className="text-slate-700"
+              />
+            </div>
+
+            <h3 className="font-bold text-slate-900 mt-4">
+              Acessórios
+            </h3>
+
+            <p className="text-sm text-slate-500 mt-1">
+              Equipamentos de qualidade
+            </p>
+          </div>
         </div>
       </div>
     </section>
   );
 }
-

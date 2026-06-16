@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/immutability */
 
 import { useEffect, useState } from "react";
 
@@ -5,7 +6,6 @@ import {
   Package,
   ShoppingCart,
   Users,
-  DollarSign,
 } from "lucide-react";
 
 import AdminSidebar from "../../components/admin/AdminSidebar";

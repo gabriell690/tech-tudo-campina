@@ -69,7 +69,7 @@ const categories = [
 
 export default function Categories() {
   return (
-    <section className="py-24 bg-gradient-to-b from-white to-slate-50">
+    <section className="py-24 bg-linear-to-b from-white to-slate-50">
       <Container>
         <SectionTitle
           title="Explore por categoria"
@@ -123,7 +123,7 @@ export default function Categories() {
                     w-16
                     h-16
                     rounded-2xl
-                    bg-gradient-to-br
+                    bg-linear-to-br
                     from-blue-500
                     to-blue-700
                     text-white

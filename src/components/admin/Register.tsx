@@ -92,7 +92,7 @@ export default function Register() {
     <section
       className="
         min-h-screen
-       bg-gradient-to-br
+       bg-linear-to-br
         from-slate-950
         via-blue-950
         to-slate-900
@@ -107,7 +107,7 @@ export default function Register() {
           w-full
           max-w-md
           bg-white
-         rounded-[32px]
+         rounded-4xl
           p-8
           shadow-2xl
         "
@@ -120,7 +120,7 @@ export default function Register() {
               h-16
               mx-auto
               rounded-2xl
-              bg-gradient-to-br
+              bg-linear-to-br
               from-blue-500
               to-blue-700
               flex

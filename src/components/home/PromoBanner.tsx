@@ -10,7 +10,7 @@ export default function PromoBanner() {
             relative
             overflow-hidden
             rounded-[40px]
-            bg-gradient-to-br
+            bg-linear-to-br
             from-slate-950
             via-blue-950
             to-slate-900
