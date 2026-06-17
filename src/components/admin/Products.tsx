@@ -12,7 +12,7 @@ import {
   Package,
 } from "lucide-react";
 
-import AdminSidebar from "../../components/admin/AdminSidebar";
+import AdminLayout from "../layout/AdminLayout";
 import { supabase } from "../../lib/supabase";
 
 type Product = {
@@ -122,10 +122,9 @@ export default function AdminProducts() {
     );
 
   return (
-    <div className="flex">
-      <AdminSidebar />
+  <AdminLayout>
 
-      <main
+    <div
         className="
           flex-1
           bg-slate-100
@@ -452,7 +451,8 @@ export default function AdminProducts() {
             </table>
           )}
         </div>
-      </main>
     </div>
+
+</AdminLayout>
   );
 }

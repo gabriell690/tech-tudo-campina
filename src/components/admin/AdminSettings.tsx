@@ -1,15 +1,15 @@
 /* eslint-disable react-hooks/immutability */
+
 import { useEffect, useState } from "react";
 
 import { Save } from "lucide-react";
 
-import AdminSidebar from "../../components/admin/AdminSidebar";
+import AdminLayout from "../layout/AdminLayout";
 
 import { supabase } from "../../lib/supabase";
 
 interface Settings {
   id: string;
-
   store_name: string;
   whatsapp: string;
   email: string;
@@ -84,288 +84,273 @@ export default function AdminSettings() {
 
   if (loading) {
     return (
-      <div className="flex">
-        <AdminSidebar />
-
-        <main className="flex-1 flex items-center justify-center">
-          Carregando...
-        </main>
-      </div>
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <p>Carregando...</p>
+        </div>
+      </AdminLayout>
     );
   }
 
   if (!settings) {
     return (
-      <div className="flex">
-        <AdminSidebar />
+      <AdminLayout>
+        <button
+          onClick={async () => {
+            const {
+              data,
+              error,
+            } = await supabase
+              .from("settings")
+              .insert({
+                store_name:
+                  "Tech Tudo Campina",
+              })
+              .select()
+              .single();
 
-        <main className="flex-1 p-8">
-          <button
-            onClick={async () => {
-              const {
-                data,
-                error,
-              } = await supabase
-                .from("settings")
-                .insert({
-                  store_name:
-                    "Tech Tudo Campina",
-                })
-                .select()
-                .single();
-
-              if (!error) {
-                setSettings(data);
-              }
-            }}
-            className="
-              bg-blue-600
-              text-white
-              px-6
-              py-3
-              rounded-2xl
-            "
-          >
-            Criar Configurações
-          </button>
-        </main>
-      </div>
+            if (!error) {
+              setSettings(data);
+            }
+          }}
+          className="
+            bg-blue-600
+            text-white
+            px-6
+            py-3
+            rounded-2xl
+          "
+        >
+          Criar Configurações
+        </button>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="flex">
-      <AdminSidebar />
-
-      <main
-        className="
-          flex-1
-          bg-slate-100
-          min-h-screen
-          p-8
-        "
-      >
-        <div className="mb-8">
-          <h1
-            className="
-              text-4xl
-              font-bold
-            "
-          >
-            Configurações
-          </h1>
-
-          <p
-            className="
-              text-slate-500
-              mt-2
-            "
-          >
-            Informações gerais da loja.
-          </p>
-        </div>
-
-        <div
+    <AdminLayout>
+      <div className="mb-8">
+        <h1
           className="
-            bg-white
-            rounded-3xl
-            p-8
-            border
-            border-slate-200
-            max-w-4xl
+            text-2xl
+            lg:text-4xl
+            font-bold
           "
         >
-          <div className="grid gap-6">
+          Configurações
+        </h1>
 
-            <div>
-              <label className="block mb-2 font-medium">
-                Nome da Loja
-              </label>
+        <p
+          className="
+            text-slate-500
+            mt-2
+          "
+        >
+          Informações gerais da loja.
+        </p>
+      </div>
 
-              <input
-                type="text"
-                value={
-                  settings.store_name || ""
-                }
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    store_name:
-                      e.target.value,
-                  })
-                }
-                className="
-                  w-full
-                  border
-                  rounded-2xl
-                  px-4
-                  py-3
-                "
-              />
-            </div>
+      <div
+        className="
+          bg-white
+          rounded-3xl
+          p-5
+          lg:p-8
+          border
+          border-slate-200
+          max-w-4xl
+        "
+      >
+        <div className="grid gap-6">
 
-            <div>
-              <label className="block mb-2 font-medium">
-                WhatsApp
-              </label>
+          <div>
+            <label className="block mb-2 font-medium">
+              Nome da Loja
+            </label>
 
-              <input
-                type="text"
-                value={
-                  settings.whatsapp || ""
-                }
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    whatsapp:
-                      e.target.value,
-                  })
-                }
-                className="
-                  w-full
-                  border
-                  rounded-2xl
-                  px-4
-                  py-3
-                "
-              />
-            </div>
-
-            <div>
-              <label className="block mb-2 font-medium">
-                Email
-              </label>
-
-              <input
-                type="email"
-                value={
-                  settings.email || ""
-                }
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    email:
-                      e.target.value,
-                  })
-                }
-                className="
-                  w-full
-                  border
-                  rounded-2xl
-                  px-4
-                  py-3
-                "
-              />
-            </div>
-
-            <div>
-              <label className="block mb-2 font-medium">
-                Instagram
-              </label>
-
-              <input
-                type="text"
-                value={
-                  settings.instagram || ""
-                }
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    instagram:
-                      e.target.value,
-                  })
-                }
-                className="
-                  w-full
-                  border
-                  rounded-2xl
-                  px-4
-                  py-3
-                "
-              />
-            </div>
-
-            <div>
-              <label className="block mb-2 font-medium">
-                Facebook
-              </label>
-
-              <input
-                type="text"
-                value={
-                  settings.facebook || ""
-                }
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    facebook:
-                      e.target.value,
-                  })
-                }
-                className="
-                  w-full
-                  border
-                  rounded-2xl
-                  px-4
-                  py-3
-                "
-              />
-            </div>
-
-            <div>
-              <label className="block mb-2 font-medium">
-                Endereço
-              </label>
-
-              <textarea
-                rows={4}
-                value={
-                  settings.address || ""
-                }
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    address:
-                      e.target.value,
-                  })
-                }
-                className="
-                  w-full
-                  border
-                  rounded-2xl
-                  px-4
-                  py-3
-                "
-              />
-            </div>
-
-            <button
-              onClick={saveSettings}
-              disabled={saving}
+            <input
+              type="text"
+              value={
+                settings.store_name || ""
+              }
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  store_name:
+                    e.target.value,
+                })
+              }
               className="
-                bg-blue-600
-                hover:bg-blue-700
-                text-white
-                px-6
-                py-4
+                w-full
+                border
                 rounded-2xl
-                flex
-                items-center
-                justify-center
-                gap-2
-                transition
+                px-4
+                py-3
               "
-            >
-              <Save size={20} />
-
-              {saving
-                ? "Salvando..."
-                : "Salvar Configurações"}
-            </button>
-
+            />
           </div>
+
+          <div>
+            <label className="block mb-2 font-medium">
+              WhatsApp
+            </label>
+
+            <input
+              type="text"
+              value={
+                settings.whatsapp || ""
+              }
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  whatsapp:
+                    e.target.value,
+                })
+              }
+              className="
+                w-full
+                border
+                rounded-2xl
+                px-4
+                py-3
+              "
+            />
+          </div>
+
+          <div>
+            <label className="block mb-2 font-medium">
+              Email
+            </label>
+
+            <input
+              type="email"
+              value={
+                settings.email || ""
+              }
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  email:
+                    e.target.value,
+                })
+              }
+              className="
+                w-full
+                border
+                rounded-2xl
+                px-4
+                py-3
+              "
+            />
+          </div>
+
+          <div>
+            <label className="block mb-2 font-medium">
+              Instagram
+            </label>
+
+            <input
+              type="text"
+              value={
+                settings.instagram || ""
+              }
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  instagram:
+                    e.target.value,
+                })
+              }
+              className="
+                w-full
+                border
+                rounded-2xl
+                px-4
+                py-3
+              "
+            />
+          </div>
+
+          <div>
+            <label className="block mb-2 font-medium">
+              Facebook
+            </label>
+
+            <input
+              type="text"
+              value={
+                settings.facebook || ""
+              }
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  facebook:
+                    e.target.value,
+                })
+              }
+              className="
+                w-full
+                border
+                rounded-2xl
+                px-4
+                py-3
+              "
+            />
+          </div>
+
+          <div>
+            <label className="block mb-2 font-medium">
+              Endereço
+            </label>
+
+            <textarea
+              rows={4}
+              value={
+                settings.address || ""
+              }
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  address:
+                    e.target.value,
+                })
+              }
+              className="
+                w-full
+                border
+                rounded-2xl
+                px-4
+                py-3
+              "
+            />
+          </div>
+
+          <button
+            onClick={saveSettings}
+            disabled={saving}
+            className="
+              bg-blue-600
+              hover:bg-blue-700
+              text-white
+              px-6
+              py-4
+              rounded-2xl
+              flex
+              items-center
+              justify-center
+              gap-2
+              transition
+            "
+          >
+            <Save size={20} />
+
+            {saving
+              ? "Salvando..."
+              : "Salvar Configurações"}
+          </button>
+
         </div>
-      </main>
-    </div>
+      </div>
+    </AdminLayout>
   );
 }

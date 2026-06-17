@@ -5,7 +5,7 @@ import {
   ShoppingCart,
 } from "lucide-react";
 
-import AdminSidebar from "./AdminSidebar";
+import AdminLayout from "../layout/AdminLayout";
 
 import { supabase } from "../../lib/supabase";
 
@@ -62,11 +62,10 @@ export default function AdminOrders() {
     loadOrders();
   }
 
-  return (
-    <div className="flex">
-      <AdminSidebar />
+ return (
+  <AdminLayout>
 
-      <main
+    <div
         className="
           flex-1
           bg-slate-100
@@ -234,7 +233,8 @@ export default function AdminOrders() {
             </table>
           )}
         </div>
-      </main>
-    </div>
+      </div>
+
+</AdminLayout>
   );
 }
