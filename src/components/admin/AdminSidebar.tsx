@@ -6,7 +6,6 @@ import {
   Users,
   Settings,
   LogOut,
-  PlusCircle,
 } from "lucide-react";
 
 import {
@@ -190,18 +189,7 @@ export default function AdminSidebar() {
           Produtos
         </NavLink>
 
-        <NavLink
-          to="/admin/products/new"
-          className={
-            linkClass
-          }
-        >
-          <PlusCircle
-            size={20}
-          />
-          Novo Produto
-        </NavLink>
-
+       
         <NavLink
   to="/admin/orders"
   className={linkClass}
@@ -229,13 +217,6 @@ export default function AdminSidebar() {
           />
           Clientes
         </button>
-
-<NavLink
-  to="/admin/banners"
-  className={linkClass}
->
-  Banners
-</NavLink>
 
     <NavLink
   to="/admin/settings"
