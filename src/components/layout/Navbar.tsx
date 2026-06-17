@@ -80,25 +80,37 @@ onClick={() => setMobileOpen(false)}
     <div className="p-6">
       <nav className="space-y-5">
         {categories.map((category) => (
-          <button
-            key={category}
-            className="
-              block
-              text-slate-300
-              hover:text-blue-400
-              transition
-            "
-          >
-            {category}
-          </button>
+          <Link
+  to={`/categoria/${category.toLowerCase()}`}
+  onClick={() => setMobileOpen(false)}
+  className="
+    block
+    text-slate-300
+    hover:text-blue-400
+    transition
+  "
+>
+  {category}
+</Link>
         ))}
       </nav>
 
       <div className="mt-10 pt-6 border-t border-slate-800">
-        <button className="flex items-center gap-3 text-slate-300">
-          <User size={20} />
-          Minha Conta
-        </button>
+        <Link
+  to="/admin/login"
+  onClick={() => setMobileOpen(false)}
+  className="
+    flex
+    items-center
+    gap-3
+    text-slate-300
+    hover:text-blue-400
+    transition
+  "
+>
+  <User size={20} />
+  Minha Conta
+</Link>
 
        <Link
   to="/carrinho"
