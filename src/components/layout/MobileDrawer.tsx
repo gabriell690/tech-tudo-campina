@@ -5,6 +5,9 @@ import {
   Heart,
   Smartphone,
   Laptop,
+  LayoutDashboard,
+  LogOut,
+  ChevronRight,
   Headphones,
   Gamepad2,
   Monitor,
@@ -13,7 +16,13 @@ import {
   Watch
 } from "lucide-react";
 
-import { Link } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+} from "react-router-dom";
+
+import { useAuth } from "../../hooks/useAuth";
+
 import logo from "../../assets/logo.png";
 
 interface MobileDrawerProps {
@@ -25,6 +34,29 @@ export default function MobileDrawer({
   open,
   onClose,
 }: MobileDrawerProps) {
+
+  const navigate = useNavigate();
+
+const {
+  user,
+  profile,
+  signOut,
+} = useAuth();
+
+const firstName =
+  profile?.name?.split(" ")[0] ||
+  user?.email?.split("@")[0] ||
+  "Usuário";
+
+async function handleLogout() {
+
+  await signOut();
+
+  onClose();
+
+  navigate("/");
+
+}
 
   const categories = [
     {
@@ -78,7 +110,7 @@ export default function MobileDrawer({
           h-screen
           w-82.5
           bg-white
-          z-999
+          z-[999]
           transition-transform
           duration-300
          overflow-y-auto
@@ -106,29 +138,145 @@ pb-28
 
         </div>
 
-        {/* Conta */}
-        <div className="p-5 border-b">
+      {/* Conta */}
+<div className="p-5 border-b">
+
+  {user ? (
+
+    <div className="space-y-4">
+
+      <Link
+        to="/minha-conta"
+        onClick={onClose}
+        className="
+        flex
+        items-center
+        justify-between
+      "
+      >
+
+        <div className="flex items-center gap-4">
+
+          <User size={22} />
+
+          <div>
+
+            <h3 className="font-semibold">
+              {firstName}
+            </h3>
+
+            <p className="text-sm text-slate-500">
+              Minha Conta
+            </p>
+
+          </div>
+
+        </div>
+
+        <ChevronRight size={18} />
+
+      </Link>
+
+      <Link
+        to="/meus-pedidos"
+        onClick={onClose}
+        className="
+        flex
+        items-center
+        gap-4
+      "
+      >
+        <ShoppingBag size={22} />
+
+        <span>
+          Meus Pedidos
+        </span>
+
+      </Link>
+
+      <Link
+        to="/favoritos"
+        onClick={onClose}
+        className="
+        flex
+        items-center
+        gap-4
+      "
+      >
+        <Heart size={22} />
+
+        <span>
+          Favoritos
+        </span>
+
+      </Link>
+
+      {
+        profile?.role === "admin" && (
 
           <Link
-            to="/admin/login"
+            to="/admin"
             onClick={onClose}
-            className="flex items-center gap-4"
+            className="
+            flex
+            items-center
+            gap-4
+            text-yellow-600
+          "
           >
-            <User size={22} />
+            <LayoutDashboard size={22} />
 
-            <div>
-              <h3 className="font-semibold">
-                Minha Conta
-              </h3>
-
-              <p className="text-sm text-slate-500">
-                Entrar ou cadastrar
-              </p>
-            </div>
+            Painel Administrativo
 
           </Link>
 
-        </div>
+        )
+      }
+
+      <button
+        onClick={handleLogout}
+        className="
+        flex
+        items-center
+        gap-4
+        text-red-500
+      "
+      >
+        <LogOut size={22} />
+
+        Sair
+
+      </button>
+
+    </div>
+
+  ) : (
+
+    <Link
+      to="/login"
+      onClick={onClose}
+      className="flex items-center gap-4"
+    >
+
+      <User size={22} />
+
+      <div>
+
+        <h3 className="font-semibold">
+          Minha Conta
+        </h3>
+
+        <p className="text-sm text-slate-500">
+          Entrar ou cadastrar
+        </p>
+
+      </div>
+
+    </Link>
+
+  )}
+
+</div>
 
         {/* Pedidos */}
         <div className="p-5 border-b">

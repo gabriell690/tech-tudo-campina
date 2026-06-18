@@ -1,22 +1,20 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
-interface AdminRouteProps {
+interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
-export default function AdminRoute({
+export default function ProtectedRoute({
   children,
-}: AdminRouteProps) {
+}: ProtectedRouteProps) {
 
   const {
     user,
-    profile,
     loading,
   } = useAuth();
 
   if (loading) {
-
     return (
       <div
         className="
@@ -35,17 +33,6 @@ export default function AdminRoute({
     return (
       <Navigate
         to="/login"
-        replace
-      />
-    );
-  }
-
-  if (
-    profile?.role !== "admin"
-  ) {
-    return (
-      <Navigate
-        to="/"
         replace
       />
     );

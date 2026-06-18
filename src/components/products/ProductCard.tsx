@@ -2,9 +2,7 @@ import {
   Heart,
   ShoppingCart,
   Star,
-  Eye,
 } from "lucide-react";
-
 import { Link } from "react-router-dom";
 
 import { useCart } from "../../context/CartContext";
@@ -22,8 +20,7 @@ export default function ProductCard({
   const discount =
     product.old_price
       ? Math.round(
-          ((product.old_price -
-            product.price) /
+          ((product.old_price - product.price) /
             product.old_price) *
             100
         )
@@ -32,36 +29,36 @@ export default function ProductCard({
   return (
     <article
       className="
-        group
-        relative
-        overflow-hidden
-        rounded-3xl
-        border
-        border-slate-200
-        bg-white
-        shadow-sm
-        transition-all
-        duration-300
-        hover:-translate-y-1
-        hover:shadow-xl
-      "
+      group
+      relative
+      overflow-hidden
+      rounded-[28px]
+      bg-white
+      border
+      border-slate-200
+      shadow-sm
+      transition-all
+      duration-300
+      hover:shadow-2xl
+      hover:-translate-y-1
+    "
     >
       {/* Desconto */}
       {product.old_price && (
         <div
           className="
-            absolute
-            top-4
-            left-4
-            z-20
-            rounded-full
-            bg-red-500
-            px-3
-            py-1
-            text-xs
-            font-bold
-            text-white
-          "
+          absolute
+          top-3
+          left-3
+          z-20
+          bg-red-500
+          text-white
+          text-xs
+          font-bold
+          px-3
+          py-1
+          rounded-full
+        "
         >
           -{discount}%
         </div>
@@ -70,244 +67,193 @@ export default function ProductCard({
       {/* Favorito */}
       <button
         className="
-          absolute
-          top-4
-          right-4
-          z-20
-          w-10
-          h-10
-          rounded-full
-          bg-white
-          shadow-md
-          flex
-          items-center
-          justify-center
-          opacity-0
-          group-hover:opacity-100
-          transition
-        "
+        absolute
+        top-3
+        right-3
+        z-20
+        w-9
+        h-9
+        rounded-full
+        bg-white
+        shadow-md
+        flex
+        items-center
+        justify-center
+        transition
+        hover:bg-red-50
+      "
       >
-        <Heart size={18} />
+        <Heart
+          size={18}
+          className="text-slate-500"
+        />
       </button>
 
       {/* Imagem */}
-      <div
+      <Link
+        to={`/produto/${product.slug}`}
         className="
-          relative
+          block
           bg-slate-50
-          overflow-hidden
         "
       >
         <img
-          src={product.image_url}
+          src={product.image_url || product.image}
           alt={product.name}
           loading="lazy"
           className="
             w-full
-            h-80
-            object-cover
+            h-44
+            md:h-100
+            object-contain
+            p-5
             transition-transform
             duration-500
             group-hover:scale-105
           "
         />
-
-        <div
-          className="
-            absolute
-            inset-0
-            bg-black/10
-            opacity-0
-            group-hover:opacity-100
-            transition
-          "
-        />
-
-        <Link
-          to={`/produto/${product.slug}`}
-          className="
-            absolute
-            bottom-4
-            left-1/2
-            -translate-x-1/2
-            bg-white
-            px-4
-            py-2
-            rounded-xl
-            shadow-lg
-            flex
-            items-center
-            gap-2
-            text-sm
-            font-medium
-            opacity-0
-            group-hover:opacity-100
-            transition
-          "
-        >
-          <Eye size={16} />
-          Visualizar
-        </Link>
-      </div>
+      </Link>
 
       {/* Conteúdo */}
-      <div className="p-6">
+      <div className="p-4 md:p-5">
+
+        {/* Marca */}
+        <p
+          className="
+          uppercase
+          tracking-wider
+          text-[11px]
+          font-bold
+          text-slate-400
+        "
+        >
+          {product.brand}
+        </p>
+
+        {/* Nome */}
+        <Link to={`/produto/${product.slug}`}>
+          <h3
+            className="
+            mt-2
+            text-sm
+            md:text-base
+            font-semibold
+            text-slate-900
+            leading-6
+            line-clamp-2
+            min-h-13
+          "
+          >
+            {product.name}
+          </h3>
+        </Link>
 
         {/* Avaliação */}
         <div
           className="
-            flex
-            items-center
-            gap-1
-            text-yellow-500
-          "
+          mt-3
+          flex
+          items-center
+          gap-1
+        "
         >
-          {[...Array(5)].map(
-            (_, index) => (
-              <Star
-                key={index}
-                size={14}
-                fill="currentColor"
-              />
-            )
-          )}
+          {[...Array(5)].map((_, index) => (
+            <Star
+              key={index}
+              size={13}
+              fill="currentColor"
+              className="text-yellow-400"
+            />
+          ))}
 
           <span
             className="
-              ml-2
-              text-xs
-              text-slate-500
-            "
+            ml-1
+            text-xs
+            text-slate-500
+          "
           >
             5.0
           </span>
         </div>
 
-        {/* Nome */}
-        <h3
-          className="
-            mt-4
-            font-semibold
-            text-slate-900
-            leading-relaxed
-            min-h-15
-          "
-        >
-          {product.name}
-        </h3>
-
-        {/* Marca */}
-        <p
-          className="
-            text-sm
-            text-slate-500
-            mt-2
-          "
-        >
-          {product.brand}
-        </p>
-
         {/* Preços */}
-        <div className="mt-5">
+        <div className="mt-4">
+
           {product.old_price && (
             <p
               className="
-                text-slate-400
-                line-through
-                text-sm
-              "
+              text-xs
+              text-slate-400
+              line-through
+            "
             >
-              R$
-              {" "}
-              {Number(
-                product.old_price
-              ).toFixed(2)}
+              R$ {Number(product.old_price).toFixed(2)}
             </p>
           )}
 
-          <p
+          <h4
             className="
-              text-3xl
-              font-bold
-              text-slate-900
-            "
+            text-2xl
+            md:text-3xl
+            font-black
+            text-slate-900
+          "
           >
-            R$
-            {" "}
-            {Number(
-              product.price
-            ).toFixed(2)}
-          </p>
+            R$ {Number(product.price).toFixed(2)}
+          </h4>
 
           <p
             className="
-              text-sm
-              text-green-600
-              mt-1
-            "
+            mt-1
+            text-sm
+            text-green-600
+            font-semibold
+          "
           >
             12x de R$
             {" "}
-            {(
-              Number(
-                product.price
-              ) / 12
-            ).toFixed(2)}
+            {(Number(product.price) / 12).toFixed(2)}
+            {" "}
+            no cartão
           </p>
-        </div>
 
-        {/* Botões */}
-        <div
-          className="
-            mt-6
-            flex
-            flex-col
-            gap-3
+          <p
+            className="
+            mt-2
+            text-xs
+            text-blue-600
+            font-semibold
           "
-        >
-          <button
-            onClick={() =>
-              addToCart(product)
-            }
-            className="
-              w-full
-              bg-blue-600
-              hover:bg-blue-700
-              text-white
-              rounded-2xl
-              py-3
-              flex
-              items-center
-              justify-center
-              gap-2
-              font-medium
-              transition
-            "
           >
-            <ShoppingCart
-              size={18}
-            />
+            ✓ Entrega rápida
+          </p>
 
-            Adicionar ao Carrinho
-          </button>
-
-          <Link
-            to={`/produto/${product.slug}`}
-            className="
-              w-full
-              border
-              border-slate-200
-              rounded-2xl
-              py-3
-              text-center
-              font-medium
-              hover:bg-slate-50
-              transition
-            "
-          >
-            Ver Detalhes
-          </Link>
         </div>
+
+        {/* Botão */}
+        <button
+          onClick={() => addToCart(product)}
+          className="
+          mt-5
+          w-full
+          h-12
+          rounded-2xl
+          bg-blue-600
+          hover:bg-blue-700
+          text-white
+          font-semibold
+          flex
+          items-center
+          justify-center
+          gap-2
+          transition
+        "
+        >
+          <ShoppingCart size={18} />
+          Adicionar
+        </button>
+
       </div>
     </article>
   );

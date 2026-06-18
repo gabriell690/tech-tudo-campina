@@ -1,27 +1,17 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import ProductCard from "../components/products/ProductCard";
 import Container from "../components/ui/Container";
 import SectionTitle from "../components/ui/SectionTitle";
 
-import { supabase } from "../lib/supabase";
+import ProductsToolbar from "../components/products/ProductsToolbar";
+import FiltersSidebar from "../components/products/FiltersSidebar";
+import MobileFiltersDrawer from "../components/products/MobileFiltersDrawer";
+import ProductsGrid from "../components/products/ProductsGrid";
 
-type Product = {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  price: number;
-  old_price: number | null;
-  stock: number;
-  category: string;
-  brand: string;
-  image: string;
-  image_url: string;
-  featured: boolean;
-  active: boolean;
-};
+import { supabase } from "../lib/supabase";
+import type { Product } from "../types/product";
+
 
 export default function Products() {
   const [products, setProducts] =
@@ -30,242 +20,187 @@ export default function Products() {
   const [loading, setLoading] =
     useState(true);
 
+  const [search, setSearch] =
+    useState("");
+
+  const [selectedCategory, setSelectedCategory] =
+    useState("");
+
+  const [selectedBrand, setSelectedBrand] =
+    useState("");
+
+  const [sortBy, setSortBy] =
+    useState("recent");
+
+  const [mobileFiltersOpen, setMobileFiltersOpen] =
+    useState(false);
+
   async function loadProducts() {
-    try {
-      const { data, error } =
-        await supabase
-          .from("products")
-          .select("*")
-          .eq("active", true)
-          .order("created_at", {
-            ascending: false,
-          });
+    setLoading(true);
 
-      if (error) throw error;
+    const { data } = await supabase
+      .from("products")
+      .select("*")
+      .eq("active", true);
 
-      setProducts(data || []);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+    setProducts(data || []);
+
+    setLoading(false);
   }
 
   useEffect(() => {
     loadProducts();
   }, []);
 
+  const categories = useMemo(() => {
+    return [
+      ...new Set(
+        products.map(
+          (p) => p.category
+        )
+      ),
+    ];
+  }, [products]);
+
+  const brands = useMemo(() => {
+    return [
+      ...new Set(
+        products.map(
+          (p) => p.brand
+        )
+      ),
+    ];
+  }, [products]);
+
+ const filteredProducts = useMemo(() => {
+
+  let result = [...products];
+
+  // Busca
+  if (search) {
+    result = result.filter((product) => {
+
+      const text = `
+        ${product.name}
+        ${product.description}
+        ${product.brand}
+        ${product.category}
+      `.toLowerCase();
+
+      return text.includes(
+        search.toLowerCase()
+      );
+    });
+  }
+
+  // Categoria
+  if (selectedCategory) {
+    result = result.filter(
+      (product) =>
+        product.category === selectedCategory
+    );
+  }
+
+  // Marca
+  if (selectedBrand) {
+    result = result.filter(
+      (product) =>
+        product.brand === selectedBrand
+    );
+  }
+
+  // Ordenação
+  switch (sortBy) {
+
+    case "priceAsc":
+      result.sort(
+        (a, b) =>
+          a.price - b.price
+      );
+      break;
+
+    case "priceDesc":
+      result.sort(
+        (a, b) =>
+          b.price - a.price
+      );
+      break;
+
+    case "az":
+      result.sort(
+        (a, b) =>
+          a.name.localeCompare(b.name)
+      );
+      break;
+
+    default:
+      break;
+  }
+
+  return result;
+
+}, [
+  products,
+  search,
+  selectedCategory,
+  selectedBrand,
+  sortBy,
+]);
+
   return (
-    <section
-      className="
-        bg-slate-50
-        min-h-screen
-        pt-32
-        pb-12
-      "
-    >
+    <section className="bg-slate-50 min-h-screen pt-32 pb-12">
+
       <Container>
 
         <SectionTitle
           title="Todos os Produtos"
-          subtitle="
-            Encontre smartphones,
-            notebooks, acessórios
-            e muito mais.
-          "
+          subtitle="Encontre smartphones, notebooks e acessórios."
         />
 
-        <div
-          className="
-            grid
-            lg:grid-cols-[280px_1fr]
-            gap-8
-            mt-10
-          "
-        >
-          {/* Sidebar */}
-          <aside
-            className="
-              bg-white
-              rounded-3xl
-              border
-              border-slate-200
-              p-6
-              h-fit
-              sticky
-              top-52
-            "
-          >
-            <h3
-              className="
-                font-bold
-                text-lg
-                mb-6
-              "
-            >
-              Filtros
-            </h3>
+        <ProductsToolbar
+          total={filteredProducts.length}
+          search={search}
+          setSearch={setSearch}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          openFilters={() =>
+            setMobileFiltersOpen(true)
+          }
+        />
 
-            <div className="space-y-8">
+        <div className="grid lg:grid-cols-[280px_1fr] gap-8 mt-8">
 
-              <div>
-                <h4
-                  className="
-                    font-semibold
-                    mb-4
-                  "
-                >
-                  Categorias
-                </h4>
+          <FiltersSidebar
+            categories={categories}
+            brands={brands}
+            selectedCategory={selectedCategory}
+            selectedBrand={selectedBrand}
+            setSelectedCategory={setSelectedCategory}
+            setSelectedBrand={setSelectedBrand}
+          />
 
-                <div className="space-y-3">
-                  <label className="flex items-center gap-2">
-                    <input type="checkbox" />
-                    Smartphones
-                  </label>
+          <ProductsGrid
+            loading={loading}
+            products={filteredProducts}
+          />
 
-                  <label className="flex items-center gap-2">
-                    <input type="checkbox" />
-                    Notebooks
-                  </label>
-
-                  <label className="flex items-center gap-2">
-                    Informática
-                  </label>
-
-                  <label className="flex items-center gap-2">
-                    Games
-                  </label>
-                </div>
-              </div>
-
-              <div>
-                <h4
-                  className="
-                    font-semibold
-                    mb-4
-                  "
-                >
-                  Marcas
-                </h4>
-
-                <div className="space-y-3">
-                  <label className="flex items-center gap-2">
-                    Apple
-                  </label>
-
-                  <label className="flex items-center gap-2">
-                    Samsung
-                  </label>
-
-                  <label className="flex items-center gap-2">
-                    Asus
-                  </label>
-
-                  <label className="flex items-center gap-2">
-                    Logitech
-                  </label>
-                </div>
-              </div>
-
-            </div>
-          </aside>
-
-          {/* Produtos */}
-          <div>
-
-            <div
-              className="
-                bg-white
-                rounded-2xl
-                border
-                border-slate-200
-                p-4
-                mb-8
-                flex
-                flex-col
-                md:flex-row
-                justify-between
-                items-center
-                gap-4
-              "
-            >
-              <span className="text-slate-600">
-                {products.length}
-                {" "}
-                produtos encontrados
-              </span>
-
-              <select
-                className="
-                  border
-                  border-slate-200
-                  rounded-xl
-                  px-4
-                  py-2
-                "
-              >
-                <option>
-                  Mais recentes
-                </option>
-
-                <option>
-                  Menor preço
-                </option>
-
-                <option>
-                  Maior preço
-                </option>
-              </select>
-            </div>
-
-            {loading ? (
-              <div
-                className="
-                  bg-white
-                  rounded-3xl
-                  p-12
-                  text-center
-                "
-              >
-                Carregando produtos...
-              </div>
-            ) : products.length === 0 ? (
-              <div
-                className="
-                  bg-white
-                  rounded-3xl
-                  p-12
-                  text-center
-                "
-              >
-                Nenhum produto
-                cadastrado.
-              </div>
-            ) : (
-              <div
-                className="
-                  grid
-                  sm:grid-cols-2
-                  xl:grid-cols-3
-                  gap-8
-                "
-              >
-                {products.map(
-                  (product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                    />
-                  )
-                )}
-              </div>
-            )}
-
-          </div>
         </div>
 
+        <MobileFiltersDrawer
+          open={mobileFiltersOpen}
+          onClose={() =>
+            setMobileFiltersOpen(false)
+          }
+          categories={categories}
+          brands={brands}
+          selectedCategory={selectedCategory}
+          selectedBrand={selectedBrand}
+          setSelectedCategory={setSelectedCategory}
+          setSelectedBrand={setSelectedBrand}
+        />
+
       </Container>
+
     </section>
   );
 }

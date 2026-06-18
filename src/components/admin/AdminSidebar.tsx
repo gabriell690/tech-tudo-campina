@@ -15,7 +15,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../hooks/useAuth";
 
 interface AdminSidebarProps {
   mobileOpen?: boolean;
@@ -26,27 +26,29 @@ export default function AdminSidebar({
   mobileOpen = false,
   onClose,
 }: AdminSidebarProps) {
-  const navigate =
-    useNavigate();
 
-  const { logout, session } =
-    useAuth();
+  const navigate = useNavigate();
+
+  const {
+    signOut,
+    user,
+    profile,
+  } = useAuth();
 
   async function handleLogout() {
-    await logout();
 
-    navigate(
-      "/admin/login"
-    );
+    await signOut();
+
+    navigate("/");
   }
 
   const adminName =
-    session?.user?.user_metadata
-      ?.name || "Administrador";
+    profile?.name ||
+    user?.email ||
+    "Administrador";
 
   const adminEmail =
-    session?.user?.email ||
-    "";
+    user?.email || "";
 
   const linkClass = ({
     isActive,
@@ -54,92 +56,82 @@ export default function AdminSidebar({
     isActive: boolean;
   }) =>
     `
-      flex
-      items-center
-      gap-3
-      px-4
-      py-3
-      rounded-2xl
-      transition
-      font-medium
-      ${
-        isActive
-          ? "bg-blue-600 text-white"
-          : "text-slate-300 hover:bg-slate-800"
-      }
-    `;
+    flex
+    items-center
+    gap-3
+    px-4
+    py-3
+    rounded-2xl
+    transition
+    font-medium
+    ${
+      isActive
+        ? "bg-orange-500 text-white"
+        : "text-zinc-300 hover:bg-zinc-800"
+    }
+  `;
 
   return (
     <>
-      {/* Overlay Mobile */}
       {mobileOpen && (
         <div
           className="
-            fixed
-            inset-0
-            bg-black/60
-            z-40
-            lg:hidden
-          "
+          fixed
+          inset-0
+          bg-black/60
+          z-40
+          lg:hidden
+        "
           onClick={onClose}
         />
       )}
 
       <aside
         className={`
-          fixed
-          top-0
-          left-0
-          h-screen
-          w-72
-          bg-slate-950
-          text-white
-          border-r
-          border-slate-800
-          z-50
-          transition-transform
-          duration-300
-          flex
-          flex-col
+        fixed
+        top-0
+        left-0
+        h-screen
+        w-72
+        bg-zinc-950
+        border-r
+        border-zinc-800
+        text-white
+        flex
+        flex-col
+        z-50
+        transition-transform
+        duration-300
 
-          ${
-            mobileOpen
-              ? "translate-x-0"
-              : "-translate-x-full"
-          }
+        ${
+          mobileOpen
+            ? "translate-x-0"
+            : "-translate-x-full"
+        }
 
-          lg:translate-x-0
-          lg:static
-        `}
+        lg:translate-x-0
+        lg:static
+      `}
       >
+
         {/* Header */}
         <div
           className="
-            p-6
-            border-b
-            border-slate-800
-            flex
-            items-center
-            justify-between
-          "
+          p-6
+          border-b
+          border-zinc-800
+          flex
+          justify-between
+          items-center
+        "
         >
           <div>
-            <h2
-              className="
-                font-bold
-                text-lg
-              "
-            >
-              Tech Tudo Campina
+            <h2 className="font-bold text-lg">
+              TechTudo Campina
             </h2>
 
-            <p
-              className="
-                text-xs
-                text-slate-400
-              "
-            >
-              Painel de Controle
+            <p className="text-xs text-zinc-500">
+              Painel Administrativo
             </p>
           </div>
 
@@ -154,197 +146,166 @@ export default function AdminSidebar({
         {/* Usuário */}
         <div
           className="
-            p-6
-            border-b
-            border-slate-800
-          "
+          p-6
+          border-b
+          border-zinc-800
+        "
         >
           <div
             className="
-              w-12
-              h-12
-              rounded-full
-              bg-blue-600
-              flex
-              items-center
-              justify-center
-              font-bold
-            "
+            w-12
+            h-12
+            rounded-full
+            bg-orange-500
+            flex
+            items-center
+            justify-center
+            font-bold
+          "
           >
             {adminName
               .charAt(0)
               .toUpperCase()}
           </div>
 
-          <h3
-            className="
-              mt-3
-              font-semibold
-            "
-          >
+          <h3 className="mt-3 font-semibold">
             {adminName}
           </h3>
 
-          <p
-            className="
-              text-sm
-              text-slate-400
-              break-all
-            "
-          >
+          <p className="text-sm text-zinc-500 break-all">
             {adminEmail}
           </p>
         </div>
 
         {/* Menu */}
-       <nav
-  className="
-    flex-1
-    p-4
-    space-y-6
-    overflow-y-auto
-  "
->
+        <nav
+          className="
+          flex-1
+          p-4
+          space-y-6
+          overflow-y-auto
+        "
+        >
 
-  {/* Dashboard */}
-  <div className="space-y-2">
+          <div className="space-y-2">
 
-    <p className="px-4 text-xs uppercase text-slate-500">
-      Visão Geral
-    </p>
+            <p className="px-4 text-xs uppercase text-zinc-500">
+              Visão Geral
+            </p>
 
-    <NavLink
-      to="/admin"
-      end
-      className={linkClass}
-      onClick={onClose}
-    >
-      <LayoutDashboard size={20} />
-      Dashboard
-    </NavLink>
+            <NavLink
+              end
+              to="/admin"
+              className={linkClass}
+            >
+              <LayoutDashboard size={20}/>
+              Dashboard
+            </NavLink>
 
-  </div>
+          </div>
 
-  {/* Catálogo */}
-  <div className="space-y-2">
+          <div className="space-y-2">
 
-    <p className="px-4 text-xs uppercase text-slate-500">
-      Catálogo
-    </p>
+            <p className="px-4 text-xs uppercase text-zinc-500">
+              Catálogo
+            </p>
 
-    <NavLink
-      to="/admin/products"
-      className={linkClass}
-      onClick={onClose}
-    >
-      <Package size={20} />
-      Produtos
-    </NavLink>
+            <NavLink
+              to="/admin/products"
+              className={linkClass}
+            >
+              <Package size={20}/>
+              Produtos
+            </NavLink>
 
-    <NavLink
-      to="/admin/categories"
-      className={linkClass}
-      onClick={onClose}
-    >
-      <Tags size={20} />
-      Categorias
-    </NavLink>
+            <NavLink
+              to="/admin/categories"
+              className={linkClass}
+            >
+              <Tags size={20}/>
+              Categorias
+            </NavLink>
 
-    <NavLink
-      to="/admin/banners"
-      className={linkClass}
-      onClick={onClose}
-    >
-      <Image size={20} />
-      Banners
-    </NavLink>
+            <NavLink
+              to="/admin/banners"
+              className={linkClass}
+            >
+              <Image size={20}/>
+              Banners
+            </NavLink>
 
-  </div>
+          </div>
 
-  {/* Vendas */}
-  <div className="space-y-2">
+          <div className="space-y-2">
 
-    <p className="px-4 text-xs uppercase text-slate-500">
-      Vendas
-    </p>
+            <p className="px-4 text-xs uppercase text-zinc-500">
+              Vendas
+            </p>
 
-    <NavLink
-      to="/admin/orders"
-      className={linkClass}
-      onClick={onClose}
-    >
-      <ShoppingCart size={20} />
-      Pedidos
-    </NavLink>
+            <NavLink
+              to="/admin/orders"
+              className={linkClass}
+            >
+              <ShoppingCart size={20}/>
+              Pedidos
+            </NavLink>
 
-    <button
-      className="
-        w-full
-        flex
-        items-center
-        gap-3
-        px-4
-        py-3
-        rounded-2xl
-        text-slate-300
-        hover:bg-slate-800
-        transition
-      "
-    >
-      <Users size={20} />
-      Clientes
-    </button>
+            <NavLink
+              to="/admin/customers"
+              className={linkClass}
+            >
+              <Users size={20}/>
+              Clientes
+            </NavLink>
 
-  </div>
+          </div>
 
-  {/* Sistema */}
-  <div className="space-y-2">
+          <div className="space-y-2">
 
-    <p className="px-4 text-xs uppercase text-slate-500">
-      Sistema
-    </p>
+            <p className="px-4 text-xs uppercase text-zinc-500">
+              Sistema
+            </p>
 
-    <NavLink
-      to="/admin/settings"
-      className={linkClass}
-      onClick={onClose}
-    >
-      <Settings size={20} />
-      Configurações
-    </NavLink>
+            <NavLink
+              to="/admin/settings"
+              className={linkClass}
+            >
+              <Settings size={20}/>
+              Configurações
+            </NavLink>
 
-  </div>
+          </div>
 
-</nav>
+        </nav>
+
         {/* Footer */}
         <div
           className="
-            p-4
-            border-t
-            border-slate-800
-          "
+          p-4
+          border-t
+          border-zinc-800
+        "
         >
           <button
-            onClick={
-              handleLogout
-            }
+            onClick={handleLogout}
             className="
-              w-full
-              flex
-              items-center
-              gap-3
-              px-4
-              py-3
-              rounded-2xl
-              text-red-400
-              hover:bg-red-500/10
-              transition
-            "
+            w-full
+            flex
+            items-center
+            gap-3
+            px-4
+            py-3
+            rounded-2xl
+            text-red-400
+            hover:bg-red-500/10
+            transition
+          "
           >
-            <LogOut size={20} />
+            <LogOut size={20}/>
             Sair
           </button>
         </div>
+
       </aside>
     </>
   );

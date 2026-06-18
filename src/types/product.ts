@@ -1,7 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface Product {
-  old_price: any;
-  image_url: string | undefined;
   id: string;
 
   name: string;
@@ -14,7 +11,7 @@ export interface Product {
 
   price: number;
 
-  oldPrice?: number;
+  old_price?: number | null;
 
   stock: number;
 
@@ -24,6 +21,8 @@ export interface Product {
 
   image: string;
 
+  image_url?: string;
+
   images?: string[];
 
   featured?: boolean;
@@ -32,7 +31,7 @@ export interface Product {
 
   rating?: number;
 
-  createdAt?: string;
+  created_at?: string;
 
-  updatedAt?: string;
+  updated_at?: string;
 }

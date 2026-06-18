@@ -7,41 +7,54 @@ import {
 import MainLayout from "./MainLayout";
 
 import Home from "../pages/Home";
-import CategoryPage from "../components/home/CategoryPage";
 import Products from "../pages/Products";
-import Register from "../components/admin/Register";
 import ProductDetails from "../pages/ProductDetails";
 import Cart from "../pages/Cart";
-import AdminLogin from "../components/admin/Login";
+
+import CategoryPage from "../components/home/CategoryPage";
+
+import Login from "../pages/Login";
+import Register from "../pages/Register";
+
+import AdminRoute from "./AdminRoute";
+import ProtectedRoute from "./ProtectedRoute";
+
 import Dashboard from "../components/admin/Dashboard";
 import AdminProducts from "../components/admin/Products";
 import ProductForm from "../components/admin/ProductForm";
-import AdminRoute from "./AdminRoute";
 import AdminOrders from "../components/admin/AdminOrders";
 import AdminSettings from "../components/admin/AdminSettings";
 import AdminBanners from "../components/admin/AdminBanners";
 import AdminCategories from "../components/admin/AdminCategories";
 
+import MinhaConta from "../pages/MinhaConta";
+import MeusPedidos from "../pages/MeusPedidos";
+import Favoritos from "../pages/Favoritos";
+
 export default function AppRoutes() {
   return (
     <BrowserRouter>
+
       <Routes>
 
-        {/* Loja */}
+        {/* Layout da Loja */}
         <Route element={<MainLayout />}>
-         
+
           <Route
             path="/"
             element={<Home />}
           />
+
           <Route
             path="/produtos"
             element={<Products />}
           />
-<Route
-  path="/categoria/:category"
-  element={<CategoryPage />}
-/>
+
+          <Route
+            path="/categoria/:category"
+            element={<CategoryPage />}
+          />
+
           <Route
             path="/produto/:slug"
             element={<ProductDetails />}
@@ -51,78 +64,115 @@ export default function AppRoutes() {
             path="/carrinho"
             element={<Cart />}
           />
+
+          {/* Login */}
+          <Route
+            path="/login"
+            element={<Login />}
+          />
+
+          <Route
+            path="/register"
+            element={<Register />}
+          />
+
+          {/* Área do cliente */}
+          <Route
+            path="/minha-conta"
+            element={
+              <ProtectedRoute>
+                <MinhaConta />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/meus-pedidos"
+            element={
+              <ProtectedRoute>
+                <MeusPedidos />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/favoritos"
+            element={
+              <ProtectedRoute>
+                <Favoritos />
+              </ProtectedRoute>
+            }
+          />
+
         </Route>
 
-        {/* Administração */}
+        {/* Área Administrativa */}
 
         <Route
-          path="/admin/login"
-          element={<AdminLogin />}
+          path="/admin"
+          element={
+            <AdminRoute>
+              <Dashboard />
+            </AdminRoute>
+          }
         />
-      <Route
-  path="/admin"
-  element={
-    <AdminRoute>
-      <Dashboard />
-    </AdminRoute>
-  }
-/>
 
-   <Route
-  path="/admin/products"
-  element={
-    <AdminRoute>
-      <AdminProducts />
-    </AdminRoute>
-  }
-/>
+        <Route
+          path="/admin/products"
+          element={
+            <AdminRoute>
+              <AdminProducts />
+            </AdminRoute>
+          }
+        />
 
-       <Route
-  path="/admin/products/new"
-  element={
-    <AdminRoute>
-      <ProductForm />
-    </AdminRoute>
-  }
-/>
-<Route
-  path="/admin/orders"
-  element={
-    <AdminRoute>
-      <AdminOrders />
-    </AdminRoute>
-  }
-/>
-<Route
-  path="/admin/categories"
-  element={
-    <AdminRoute>
-      <AdminCategories />
-    </AdminRoute>
-  }
-/>
-<Route
-  path="/admin/settings"
-  element={
-    <AdminRoute>
-      <AdminSettings />
-    </AdminRoute>
-  }
-/>
-<Route
-  path="/admin/banners"
-  element={
-    <AdminRoute>
-      <AdminBanners />
-    </AdminRoute>
-  }
-/>
-<Route
-  path="/admin/register"
-  element={<Register />}
-/>
+        <Route
+          path="/admin/products/new"
+          element={
+            <AdminRoute>
+              <ProductForm />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/orders"
+          element={
+            <AdminRoute>
+              <AdminOrders />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/categories"
+          element={
+            <AdminRoute>
+              <AdminCategories />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/settings"
+          element={
+            <AdminRoute>
+              <AdminSettings />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/banners"
+          element={
+            <AdminRoute>
+              <AdminBanners />
+            </AdminRoute>
+          }
+        />
 
       </Routes>
+
     </BrowserRouter>
   );
 }
