@@ -7,6 +7,7 @@ import {
 import MainLayout from "./MainLayout";
 
 import Home from "../pages/Home";
+import CategoryPage from "../components/home/CategoryPage";
 import Products from "../pages/Products";
 import Register from "../components/admin/Register";
 import ProductDetails from "../pages/ProductDetails";
@@ -19,6 +20,7 @@ import AdminRoute from "./AdminRoute";
 import AdminOrders from "../components/admin/AdminOrders";
 import AdminSettings from "../components/admin/AdminSettings";
 import AdminBanners from "../components/admin/AdminBanners";
+import AdminCategories from "../components/admin/AdminCategories";
 
 export default function AppRoutes() {
   return (
@@ -36,7 +38,10 @@ export default function AppRoutes() {
             path="/produtos"
             element={<Products />}
           />
-
+<Route
+  path="/categoria/:category"
+  element={<CategoryPage />}
+/>
           <Route
             path="/produto/:slug"
             element={<ProductDetails />}
@@ -85,6 +90,14 @@ export default function AppRoutes() {
   element={
     <AdminRoute>
       <AdminOrders />
+    </AdminRoute>
+  }
+/>
+<Route
+  path="/admin/categories"
+  element={
+    <AdminRoute>
+      <AdminCategories />
     </AdminRoute>
   }
 />

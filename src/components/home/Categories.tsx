@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Smartphone,
   Laptop,
@@ -8,171 +10,118 @@ import {
   Wifi,
   Shield,
   Tv,
-  ArrowRight,
+  Package,
 } from "lucide-react";
+import { supabase } from "../../lib/supabase";
 
-import Container from "../ui/Container";
-import SectionTitle from "../ui/SectionTitle";
+interface Category {
+  name: string;
+  count: number;
+}
 
-const categories = [
-  {
-    title: "Smartphones",
-    count: 128,
-    icon: Smartphone,
-  },
-  {
-    title: "Notebooks",
-    count: 74,
-    icon: Laptop,
-  },
-  {
-    title: "Fones",
-    count: 95,
-    icon: Headphones,
-  },
-  {
-    title: "Games",
-    count: 53,
-    icon: Gamepad2,
-  },
-  {
-    title: "Smartwatches",
-    count: 67,
-    icon: Watch,
-  },
-  {
-    title: "Informática",
-    count: 112,
-    icon: Monitor,
-  },
-  {
-    title: "Redes",
-    count: 41,
-    icon: Wifi,
-  },
-  {
-    title: "Segurança",
-    count: 38,
-    icon: Shield,
-  },
-  {
-    title: "TV & Streaming",
-    count: 59,
-    icon: Tv,
-  },
-  {
-    title: "Acessórios",
-    count: 184,
-    icon: Headphones,
-  },
-];
+const icons: Record<string, any> = {
+  Smartphones: Smartphone,
+  Notebooks: Laptop,
+  Fones: Headphones,
+  Games: Gamepad2,
+  Smartwatches: Watch,
+  Informática: Monitor,
+  Redes: Wifi,
+  Segurança: Shield,
+  "TV & Streaming": Tv,
+  Acessórios: Package,
+};
 
 export default function Categories() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  async function loadCategories() {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("products")
+      .select("category")
+      .eq("active", true);
+
+    if (error) {
+      console.log(error);
+      setLoading(false);
+      return;
+    }
+
+    const grouped: Record<string, number> = {};
+
+    data?.forEach((item) => {
+      if (!item.category) return;
+
+      grouped[item.category] = (grouped[item.category] || 0) + 1;
+    });
+
+    const result: Category[] = Object.entries(grouped).map(
+      ([name, count]) => ({
+        name,
+        count,
+      })
+    );
+
+    setCategories(result);
+    setLoading(false);
+  }
+
   return (
-    <section className="py-24 bg-linear-to-b from-white to-slate-50">
-      <Container>
-        <SectionTitle
-          title="Explore por categoria"
-          subtitle="Encontre rapidamente os produtos ideais para seu setup, trabalho ou entretenimento."
-        />
+    <section className="py-20 bg-gray-50">
+      <div className="container mx-auto px-4">
 
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
-          {categories.map((category) => {
-            const Icon = category.icon;
+        <h2 className="text-4xl font-bold text-slate-900">
+          Explore por categoria
+        </h2>
 
-            return (
-              <div
-                key={category.title}
-                className="
-                  group
-                  relative
-                  overflow-hidden
-                  rounded-3xl
-                  border
-                  border-slate-200
-                  bg-white
-                  p-6
-                  transition-all
-                  duration-300
-                  hover:-translate-y-2
-                  hover:border-blue-500
-                  hover:shadow-2xl
-                  cursor-pointer
-                "
-              >
-                {/* Glow */}
-                <div
-                  className="
-                    absolute
-                    -top-10
-                    -right-10
-                    w-28
-                    h-28
-                    rounded-full
-                    bg-blue-500/10
-                    blur-2xl
-                    opacity-0
-                    group-hover:opacity-100
-                    transition
-                  "
-                />
+        <p className="text-gray-500 mt-2 mb-10">
+          Encontre rapidamente os produtos ideais para seu setup, trabalho ou entretenimento.
+        </p>
 
-                {/* Ícone */}
-                <div
-                  className="
-                    w-16
-                    h-16
-                    rounded-2xl
-                    bg-linear-to-br
-                    from-blue-500
-                    to-blue-700
-                    text-white
-                    flex
-                    items-center
-                    justify-center
-                    shadow-lg
-                    mb-6
-                  "
+        {loading ? (
+          <div className="text-gray-500">
+            Carregando categorias...
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+
+            {categories.map((category) => {
+              const Icon = icons[category.name] || Package;
+
+              return (
+                <Link
+                  key={category.name}
+                  to={`/categoria/${encodeURIComponent(category.name)}`}
+                  className="bg-white rounded-3xl border p-6 hover:shadow-xl transition duration-300"
                 >
-                  <Icon size={30} />
-                </div>
+                  <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center text-white mb-6">
+                    <Icon size={28} />
+                  </div>
 
-                {/* Conteúdo */}
-                <h3 className="font-bold text-lg text-slate-900">
-                  {category.title}
-                </h3>
+                  <h3 className="font-bold text-lg text-slate-900">
+                    {category.name}
+                  </h3>
 
-                <p className="text-slate-500 text-sm mt-2">
-                  {category.count} produtos
-                </p>
+                  <p className="text-gray-500 mt-2">
+                    {category.count} produtos
+                  </p>
 
-                {/* Link */}
-                <div
-                  className="
-                    flex
-                    items-center
-                    gap-2
-                    mt-5
-                    text-blue-600
-                    font-medium
-                    text-sm
-                  "
-                >
-                  Ver categoria
-
-                  <ArrowRight
-                    size={16}
-                    className="
-                      transition-transform
-                      group-hover:translate-x-1
-                    "
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </Container>
+                  <span className="text-blue-600 mt-6 inline-block font-medium">
+                    Ver categoria →
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </section>
   );
 }

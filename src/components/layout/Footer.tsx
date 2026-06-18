@@ -111,14 +111,14 @@ TT </div>
             <div className="flex gap-3">
               <Phone size={18} />
               <span>
-                (83) 99999-9999
+                (83) 98833-3856
               </span>
             </div>
 
             <div className="flex gap-3">
               <Mail size={18} />
               <span>
-                contato@techtudo.com.br
+               techtudocampina@gmail.com
               </span>
             </div>
           </div>

@@ -1,239 +1,167 @@
-import { useState } from "react";
-
 import {
-Menu,
-Search,
-ShoppingCart,
-User,
-X,
+  Menu,
+  Search,
+  ShoppingCart,
+  User,
 } from "lucide-react";
 
+import { Link } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import Container from "../ui/Container";
 import { useCart } from "../../context/CartContext";
-import { Link } from "react-router-dom";
 
+interface NavbarProps {
+  onMenuClick: () => void;
+}
 
-export default function Navbar() {
-const [mobileOpen, setMobileOpen] = useState(false);
+export default function Navbar({
+  onMenuClick,
+}: NavbarProps) {
+  const { cartCount } = useCart();
 
-const { cartCount } = useCart();
+  const categories = [
+    "Smartphones",
+    "Notebooks",
+    "Informática",
+    "Games",
+    "Fones",
+    "Smartwatches",
+    "Redes",
+    "TV & Streaming",
+  ];
 
-const categories = [
-"Smartphones",
-"Notebooks",
-"Informática",
-"Games",
-"Fones",
-"Smartwatches",
-"Redes",
-"TV & Streaming",
-];
+  return (
+    <header className="fixed top-0 left-0 right-0 z-50 shadow-lg">
 
-return (
-<>
-{mobileOpen && (
-<div
-className="fixed inset-0 bg-black/60 z-90 lg:hidden"
-onClick={() => setMobileOpen(false)}
-/>
-)}
+      {/* Desktop */}
+      <div className="hidden md:block bg-[#071A35] border-b border-blue-900">
+        <Container>
+          <div className="h-24 flex items-center gap-8">
 
-  <aside
-    className={`
-      fixed
-      top-0
-      left-0
-      h-screen
-      w-[320px]
-      bg-slate-950
-      z-100
-      transition-transform
-      duration-300
-      lg:hidden
-      ${
-        mobileOpen
-          ? "translate-x-0"
-          : "-translate-x-full"
-      }
-    `}
-  >
-    <div className="p-6 border-b border-slate-800 flex items-center justify-between">
-      <div>
-        <h2 className="text-white font-bold text-lg">
-          Tech Tudo Campina
-        </h2>
+            <Link
+              to="/"
+              className="shrink-0"
+            >
+              <img
+                src={logo}
+                alt="Tech Tudo Campina"
+                className="h-40 w-auto"
+              />
+            </Link>
 
-        <p className="text-slate-400 text-sm">
-          Tecnologia Premium
-        </p>
-      </div>
+            <div className="flex-1 max-w-5xl mx-10">
+              <div className="relative">
 
-      <button
-        className="text-white"
-        onClick={() => setMobileOpen(false)}
-      >
-        <X />
-      </button>
-    </div>
-
-    <div className="p-6">
-      <nav className="space-y-5">
-        {categories.map((category) => (
-          <Link
-  to={`/categoria/${category.toLowerCase()}`}
-  onClick={() => setMobileOpen(false)}
+         <input
+  type="text"
+  placeholder="O que você está procurando?"
   className="
-    block
-    text-slate-300
-    hover:text-blue-400
-    transition
+    w-full
+    h-14
+    rounded-2xl
+    bg-slate-700
+    border
+    border-slate-700
+    text-white
+    placeholder:text-slate-300
+    px-6
+    pr-20
+    outline-none
+    focus:border-yellow-400
   "
->
-  {category}
-</Link>
-        ))}
-      </nav>
-
-      <div className="mt-10 pt-6 border-t border-slate-800">
-        <Link
-  to="/admin/login"
-  onClick={() => setMobileOpen(false)}
+/>
+<button
   className="
+    absolute
+    right-0
+    top-0
+    h-14
+    w-14
+    bg-yellow-400
+    hover:bg-yellow-500
+    rounded-r-xl
     flex
     items-center
-    gap-3
-    text-slate-300
-    hover:text-blue-400
+    justify-center
+    text-slate-900
     transition
   "
 >
-  <User size={20} />
-  Minha Conta
-</Link>
+  <Search size={24} />
+</button>
+              </div>
+            </div>
 
-       <Link
-  to="/carrinho"
-  className="
-    relative
-    text-slate-600
-    hover:text-blue-600
-    transition
-  "
->
-  <ShoppingCart size={24} />
+            <div className="flex items-center gap-8">
 
-  <span
-    className="
-      absolute
-      -top-2
-      -right-2
-      min-w-5
-      h-5
-      px-1
-      rounded-full
-      bg-red-500
-      text-white
-      text-xs
-      flex
-      items-center
-      justify-center
-    "
-  >
-    {cartCount}
-  </span>
-</Link>
-      </div>
-    </div>
-  </aside>
+              <Link
+                to="/admin/login"
+                className="
+                  flex
+                  items-center
+                  gap-2
+                  text-white
+                "
+              >
+                <User size={20} />
+                Login
+              </Link>
 
- <header className="fixed top-0 left-0 right-0 z-50 shadow-lg">
-  {/* Barra Superior */}
-  <div className="bg-[#071A35] border-b border-blue-900">
-  
-  </div>
+              <Link
+                to="/carrinho"
+                className="
+                  relative
+                  text-white
+                "
+              >
+                <ShoppingCart size={24} />
 
-  {/* Navbar Principal */}
-  <div className="bg-[#071A35] border-b border-blue-900">
-    <Container>
-      <div className="h-24 flex items-center gap-6">
+                <span
+                  className="
+                    absolute
+                    -top-2
+                    -right-2
+                    bg-red-500
+                    rounded-full
+                    min-w-5
+                    h-5
+                    px-1
+                    text-xs
+                    text-white
+                    flex
+                    items-center
+                    justify-center
+                  "
+                >
+                  {cartCount}
+                </span>
 
-        <button
-          className="lg:hidden text-white"
-          onClick={() => setMobileOpen(true)}
-        >
-          <Menu />
-        </button>
+              </Link>
 
-        <Link
-          to="/"
-          className="flex items-center shrink-0"
-        >
-          <img
-            src={logo}
-            alt="Tech Tudo Campina"
-            className="h-40 w-auto"
-          />
-        </Link>
+            </div>
 
-        <div className="hidden md:flex flex-1 max-w-3xl mx-auto">
-          <div className="relative w-full">
-            <input
-              type="text"
-              placeholder="Busque smartphones, notebooks, acessórios..."
-              className="
-                w-full
-                h-14
-                rounded-2xl
-                bg-white
-                border
-                border-slate-200
-                px-6
-                pr-16
-                text-slate-900
-                outline-none
-                focus:border-blue-500
-              "
-            />
-
-            <button
-              className="
-                absolute
-                right-2
-                top-1/2
-                -translate-y-1/2
-                w-10
-                h-10
-                rounded-xl
-                bg-blue-600
-                hover:bg-blue-700
-                text-white
-                flex
-                items-center
-                justify-center
-              "
-            >
-              <Search size={18} />
-            </button>
           </div>
-        </div>
+        </Container>
+      </div>
 
-        <div className="flex items-center gap-6">
+      {/* Mobile */}
+      <div className="md:hidden bg-[#071A35]">
 
-          <Link
-            to="/admin/login"
-            className="
-              hidden
-              md:flex
-              items-center
-              gap-2
-              text-white
-              hover:text-yellow-400
-              transition
-            "
+        <div className="h-20 px-4 flex items-center justify-between">
+
+          <button
+            onClick={onMenuClick}
+            className="text-white"
           >
-            <User size={20} />
-            <span>Login</span>
+            <Menu size={28} />
+          </button>
+
+          <Link to="/">
+            <img
+              src={logo}
+              alt="TechTudo"
+              className="h-40"
+            />
           </Link>
 
           <Link
@@ -241,8 +169,6 @@ onClick={() => setMobileOpen(false)}
             className="
               relative
               text-white
-              hover:text-yellow-400
-              transition
             "
           >
             <ShoppingCart size={24} />
@@ -252,13 +178,13 @@ onClick={() => setMobileOpen(false)}
                 absolute
                 -top-2
                 -right-2
+                bg-red-500
+                rounded-full
                 min-w-5
                 h-5
                 px-1
-                rounded-full
-                bg-red-500
-                text-white
                 text-xs
+                text-white
                 flex
                 items-center
                 justify-center
@@ -266,44 +192,88 @@ onClick={() => setMobileOpen(false)}
             >
               {cartCount}
             </span>
+
           </Link>
 
         </div>
-      </div>
-    </Container>
-  </div>
 
-  {/* Categorias */}
-  <div className="bg-white border-b border-slate-200">
-    <Container>
-      <nav
-        className="
-          hidden
-          lg:flex
-          items-center
-          justify-center
-          gap-10
-          h-10
-        "
-      >
-        {categories.map((category) => (
-          <button
-            key={category}
-            className="
-              text-sm
-              font-medium
-              text-slate-700
-              hover:text-blue-600
-              transition
-            "
-          >
-            {category}
-          </button>
-        ))}
-      </nav>
-    </Container>
-  </div>
-</header>
-</>
-);
+        {/* Busca Mobile */}
+        <div className="px-4 pb-4">
+
+          <div className="relative">
+
+            <input
+              type="text"
+              placeholder="O que você está procurando?"
+              className="
+                w-full
+                h-14
+                rounded-xl
+                bg-slate-700
+                text-white
+                px-5
+                pr-16
+                outline-none
+              "
+            />
+
+           <button
+  className="
+    absolute
+    right-0
+    top-0
+    h-14
+    w-14
+    bg-yellow-400
+    hover:bg-yellow-500
+    rounded-r-xl
+    flex
+    items-center
+    justify-center
+    text-slate-900
+    transition
+  "
+>
+  <Search size={24} />
+</button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* Categorias Desktop */}
+      <div className="hidden lg:block bg-white border-b">
+
+        <Container>
+
+          <nav className="flex items-center justify-center gap-10 h-10">
+
+          {categories.map((category) => (
+  <Link
+    key={category}
+    to={`/categoria/${encodeURIComponent(category)}`}
+    className="
+      text-sm
+      font-medium
+      text-slate-700
+      hover:text-blue-600
+      transition
+    "
+  >
+    {category}
+    
+  </Link>
+  
+))}
+
+          </nav>
+
+        </Container>
+
+      </div>
+
+    </header>
+  );
 }
