@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 import { useEffect, useState } from "react";
 import {
   Plus,
@@ -8,7 +8,6 @@ import {
   PowerOff,
 } from "lucide-react";
 
-import AdminSidebar from "../../components/admin/AdminSidebar";
 import { supabase } from "../../lib/supabase";
 
 interface Category {
