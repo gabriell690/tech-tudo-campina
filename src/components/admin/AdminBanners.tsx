@@ -7,7 +7,7 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 
-import AdminSidebar from "./AdminSidebar";
+import AdminLayout from "../layout/AdminLayout";
 
 import { supabase } from "../../lib/supabase";
 
@@ -152,8 +152,7 @@ export default function AdminBanners() {
   }
 
   return (
-    <div className="flex">
-      <AdminSidebar />
+       <AdminLayout>
 
       <main
         className="
@@ -424,6 +423,6 @@ export default function AdminBanners() {
           )}
         </div>
       </main>
-    </div>
+     </AdminLayout>
   );
 }

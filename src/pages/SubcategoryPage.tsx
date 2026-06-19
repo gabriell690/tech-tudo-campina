@@ -1,59 +1,69 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import ProductCard from "../components/products/ProductCard";
+import { supabase } from "../lib/supabase";
 
-import ProductCard from "../products/ProductCard";
-import { supabase } from "../../lib/supabase";
+export default function SubcategoryPage() {
 
-export default function CategoryPage() {
-
-  const { categorySlug } = useParams();
+  const {
+    categorySlug,
+    subcategorySlug,
+  } = useParams();
 
   const [products, setProducts] = useState<any[]>([]);
-  const [categoryName, setCategoryName] =
-    useState("");
+  const [title, setTitle] = useState("");
 
   useEffect(() => {
 
     async function loadProducts() {
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("products")
         .select(`
           *,
           categories (
-            id,
+            name,
+            slug
+          ),
+          subcategories (
             name,
             slug
           )
         `)
         .eq(
-          "categories.slug",
-          categorySlug
+          "subcategories.slug",
+          subcategorySlug
         );
 
-      if (data) {
+      if (!error && data) {
+
         setProducts(data);
 
         if (data.length > 0) {
-          setCategoryName(
-            data[0].categories.name
+
+          setTitle(
+            data[0].subcategories.name
           );
+
         }
+
       }
 
     }
 
     loadProducts();
 
-  }, [categorySlug]);
+  }, [categorySlug, subcategorySlug]);
 
   return (
 
     <div className="max-w-7xl mx-auto px-6 py-10">
 
       <h1 className="text-4xl font-bold mb-10">
-        {categoryName}
+
+        {title}
+
       </h1>
 
       <div className="grid md:grid-cols-4 gap-8">

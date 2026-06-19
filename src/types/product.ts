@@ -16,6 +16,9 @@ export interface Product {
   stock: number;
 
   category: string;
+  
+  category_id?: string;
+subcategory_id?: string;
 
   brand: string;
 

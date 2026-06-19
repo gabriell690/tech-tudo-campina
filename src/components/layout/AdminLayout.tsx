@@ -3,16 +3,20 @@ import { Menu } from "lucide-react";
 
 import AdminSidebar from "../../components/admin/AdminSidebar";
 
+interface Props {
+  children: React.ReactNode;
+}
+
 export default function AdminLayout({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+}: Props) {
+
   const [mobileMenu, setMobileMenu] =
     useState(false);
 
   return (
-    <div className="bg-slate-100 min-h-screen flex">
+
+    <div className="min-h-screen bg-slate-100">
 
       <AdminSidebar
         mobileOpen={mobileMenu}
@@ -21,55 +25,65 @@ export default function AdminLayout({
         }
       />
 
-      <div className="flex-1">
+      {/* Header Mobile */}
+      <header
+        className="
+        lg:hidden
+        fixed
+        top-0
+        left-0
+        right-0
+        h-16
+        bg-[#071A35]
+        border-b
+        border-blue-900
+        flex
+        items-center
+        px-5
+        z-40
+        "
+      >
 
-        <header
+        <button
+          onClick={() =>
+            setMobileMenu(true)
+          }
+          className="text-white"
+        >
+          <Menu size={26} />
+        </button>
+
+        <h1
           className="
-            lg:hidden
-            fixed
-            top-0
-            left-0
-            right-0
-            h-16
-            bg-white
-            border-b
-            border-slate-200
-            flex
-            items-center
-            px-4
-            z-30
+          ml-4
+          text-white
+          font-bold
           "
         >
-          <button
-            onClick={() =>
-              setMobileMenu(true)
-            }
-          >
-            <Menu size={24} />
-          </button>
+          TechTudo Admin
+        </h1>
 
-          <h1
-            className="
-              ml-4
-              font-bold
-            "
-          >
-            Painel Admin
-          </h1>
-        </header>
+      </header>
 
-        <main
-          className="
-            p-4
-            lg:p-8
-            pt-20
-            lg:pt-8
-          "
-        >
-          {children}
-        </main>
+      {/* Conteúdo */}
+      <main
+        className="
+        lg:ml-72
+        min-h-screen
+        pt-20
+        lg:pt-8
+        p-4
+        md:p-8
+        overflow-x-hidden
+        "
+      >
 
-      </div>
+        {children}
+
+      </main>
+
     </div>
+
   );
+
 }

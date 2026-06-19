@@ -50,7 +50,9 @@ export default function SocialLogin() {
       >
         Continuar com Github
       </button>
+      
 
     </div>
+    
   );
 }

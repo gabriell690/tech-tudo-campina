@@ -30,6 +30,7 @@ import AdminCategories from "../components/admin/AdminCategories";
 import MinhaConta from "../pages/MinhaConta";
 import MeusPedidos from "../pages/MeusPedidos";
 import Favoritos from "../pages/Favoritos";
+import AdminCustomers from "../components/admin/AdminCostumers";
 
 export default function AppRoutes() {
   return (
@@ -143,6 +144,10 @@ export default function AppRoutes() {
             </AdminRoute>
           }
         />
+<Route
+  path="/admin/customers"
+  element={<AdminCustomers />}
+/>
 
         <Route
           path="/admin/categories"

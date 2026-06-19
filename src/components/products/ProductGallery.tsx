@@ -40,8 +40,8 @@ export default function ProductGallery({
           alt={product.name}
           className="
             w-full
-            h-[320px]
-            md:h-[500px]
+            h-80
+            md:h-125
             object-contain
             transition-transform
             duration-500

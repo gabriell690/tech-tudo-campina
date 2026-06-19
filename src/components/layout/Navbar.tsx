@@ -20,7 +20,7 @@ import {
   Link,
   useNavigate,
 } from "react-router-dom";
-
+import { useCategories } from "../../hooks/useCategories";
 import logo from "../../assets/logo.png";
 import Container from "../ui/Container";
 import { useCart } from "../../context/CartContext";
@@ -36,12 +36,19 @@ export default function Navbar({
 
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
+  useState(false);
+
+const { categories } = useCategories();
+const [hoveredCategory, setHoveredCategory] =
+  useState<string | null>(null);
 
   const {
     user,
     profile,
     signOut,
   } = useAuth();
+  
+
   
 const firstName =
   profile?.name?.split(" ")[0] ||
@@ -56,17 +63,6 @@ const firstName =
     await signOut();
     navigate("/");
   }
-
-  const categories = [
-    "Smartphones",
-    "Notebooks",
-    "Informática",
-    "Games",
-    "Fones",
-    "Smartwatches",
-    "Redes",
-    "TV & Streaming",
-  ];
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 shadow-lg">
@@ -442,36 +438,106 @@ user ? (
 
       </div>
 
-      {/* Categorias */}
-      <div className="hidden lg:block bg-white border-b">
+{/* Categorias */}
+<div className="hidden lg:block bg-white border-b">
 
-        <Container>
+  <Container>
 
-          <nav className="flex items-center justify-center gap-10 h-10">
+    <div className="relative">
 
-            {categories.map((category) => (
+      <nav className="flex items-center justify-center gap-10 h-12">
 
-              <Link
-                key={category}
-                to={`/categoria/${encodeURIComponent(category)}`}
-                className="
-                text-sm
-                font-medium
-                text-slate-700
-                hover:text-blue-600
+        {categories.map((category) => (
+
+          <div
+            key={category.id}
+            className="relative"
+            onMouseEnter={() =>
+              setHoveredCategory(category.id)
+            }
+            onMouseLeave={() =>
+              setHoveredCategory(null)
+            }
+          >
+
+            <Link
+              to={`/categoria/${category.slug}`}
+              className="
+              font-medium
+              text-slate-700
+              hover:text-blue-600
               "
-              >
-                {category}
-              </Link>
+            >
+              {category.name}
+            </Link>
 
-            ))}
+            {
+              hoveredCategory === category.id &&
+              category.subcategories.length > 0 && (
 
-          </nav>
+                <div
+                  className="
+                  absolute
+                  top-full
+                  left-1/2
+                  -translate-x-1/2
+                  mt-2
+                  bg-white
+                  rounded-3xl
+                  shadow-2xl
+                  w-72
+                  p-5
+                  z-50
+                "
+                >
 
-        </Container>
+                  <h3 className="
+                  font-bold
+                  mb-4
+                  text-slate-900
+                  ">
+                    {category.name}
+                  </h3>
 
-      </div>
+                  <div className="
+                  flex
+                  flex-col
+                  gap-3
+                  ">
 
+                    {category.subcategories.map((sub) => (
+
+                      <Link
+                        key={sub.id}
+                        to={`/categoria/${category.slug}/${sub.slug}`}
+                        className="
+                        text-slate-500
+                        hover:text-orange-500
+                        "
+                      >
+                        {sub.name}
+                      </Link>
+
+                    ))}
+
+                  </div>
+
+                </div>
+
+              )
+            }
+
+          </div>
+
+        ))}
+
+      </nav>
+
+    </div>
+
+  </Container>
+
+</div>
     </header>
   );
 }

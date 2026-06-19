@@ -1,337 +1,156 @@
- 
-import { useEffect, useState } from "react";
-import {
-  Plus,
-  Trash2,
-  Tags,
-  Power,
-  PowerOff,
-} from "lucide-react";
+import { useState } from "react";
 
-import { supabase } from "../../lib/supabase";
+import AdminLayout from "../layout/AdminLayout";
+import CategoryCard from "../../components/admin/CategoryCard";
+import CategoryModal from "../../components/admin/CategoryModal";
+import SubcategoryModal from "../../components/admin/SubcategoryModal";
 
-interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  icon: string;
-  banner_url: string;
-  sort_order: number;
-  active: boolean;
-}
+import { useCategories } from "../../hooks/useCategories";
+import type { Category } from "../../types/category";
 
 export default function AdminCategories() {
-  const [loading, setLoading] = useState(true);
 
-  const [categories, setCategories] = useState<Category[]>([]);
+  const { categories } = useCategories();
 
-  const [form, setForm] = useState({
-    name: "",
-    slug: "",
-    icon: "",
-  });
+  const [openCategoryModal, setOpenCategoryModal] =
+    useState(false);
 
-  useEffect(() => {
-    loadCategories();
-  }, []);
+  const [openSubcategoryModal, setOpenSubcategoryModal] =
+    useState(false);
 
-  async function loadCategories() {
-    setLoading(true);
-
-    const { data, error } = await supabase
-      .from("categories")
-      .select("*")
-      .order("sort_order", {
-        ascending: true,
-      });
-
-    if (!error) {
-      setCategories(data || []);
-    }
-
-    setLoading(false);
-  }
-
-  async function createCategory() {
-    if (!form.name || !form.slug) {
-      alert("Preencha nome e slug.");
-      return;
-    }
-
-    const { error } = await supabase
-      .from("categories")
-      .insert({
-        ...form,
-        active: true,
-      });
-
-    if (error) {
-      console.error(error);
-      alert("Erro ao criar categoria.");
-      return;
-    }
-
-    setForm({
-      name: "",
-      slug: "",
-      icon: "",
-    });
-
-    loadCategories();
-  }
-
-  async function deleteCategory(id: string) {
-    await supabase
-      .from("categories")
-      .delete()
-      .eq("id", id);
-
-    loadCategories();
-  }
-
-  async function toggleCategory(category: Category) {
-    await supabase
-      .from("categories")
-      .update({
-        active: !category.active,
-      })
-      .eq("id", category.id);
-
-    loadCategories();
-  }
+  const [selectedCategory, setSelectedCategory] =
+    useState<Category | null>(null);
 
   return (
-    <div className="flex">
 
-     
+      <AdminLayout>
+<main
+  className="
+  flex-1
+  bg-slate-100
+  min-h-screen
+  overflow-x-hidden
+  p-4
+  md:p-8
+  "
+>
+        <div className="max-w-7xl mx-auto space-y-8">
 
-      <main
-        className="
-          flex-1
-          min-h-screen
-          bg-slate-100
-          p-8
-        "
-      >
-        {/* Header */}
-        <div className="mb-8">
+          {/* Topo */}
+          <div
+            className="
+            flex
+            flex-col
+            md:flex-row
+            items-start
+            md:items-center
+            justify-between
+            gap-5
+            "
+          >
 
-          <h1 className="text-4xl font-bold">
-            Categorias
-          </h1>
+            <div>
 
-          <p className="text-slate-500 mt-2">
-            Gerencie as categorias da loja.
-          </p>
+             <h1 className="text-3xl md:text-4xl font-bold">
+                Categorias
+              </h1>
 
-        </div>
+              <p className="text-slate-500 mt-2">
+                Gerencie categorias e subcategorias da loja.
+              </p>
 
-        {/* Formulário */}
-        <div
-          className="
-            bg-white
-            rounded-3xl
-            border
-            border-slate-200
-            p-8
-            mb-8
-          "
-        >
-          <h2 className="text-xl font-semibold mb-6">
-            Nova Categoria
-          </h2>
+            </div>
 
-          <div className="grid md:grid-cols-3 gap-4">
-
-            <input
-              type="text"
-              placeholder="Nome"
-              value={form.name}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  name: e.target.value,
-                })
+            <button
+              onClick={() =>
+                setOpenCategoryModal(true)
               }
               className="
-                border
-                rounded-2xl
-                px-4
-                py-3
-              "
-            />
-
-            <input
-              type="text"
-              placeholder="Slug"
-              value={form.slug}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  slug: e.target.value,
-                })
-              }
-              className="
-                border
-                rounded-2xl
-                px-4
-                py-3
-              "
-            />
-
-            <input
-              type="text"
-              placeholder="Ícone"
-              value={form.icon}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  icon: e.target.value,
-                })
-              }
-              className="
-                border
-                rounded-2xl
-                px-4
-                py-3
-              "
-            />
+w-full
+md:w-auto
+bg-orange-500
+hover:bg-orange-600
+text-white
+px-6
+py-3
+rounded-2xl
+font-medium
+"
+            >
+              Nova Categoria
+            </button>
 
           </div>
 
-          <button
-            onClick={createCategory}
+          {/* Cards */}
+          <div
             className="
-              mt-6
-              bg-blue-600
-              hover:bg-blue-700
-              text-white
-              px-6
-              py-4
-              rounded-2xl
-              flex
-              items-center
-              gap-2
+            grid
+            md:grid-cols-2
+            xl:grid-cols-3
+            gap-6
             "
           >
-            <Plus size={20} />
-            Criar Categoria
-          </button>
-        </div>
 
-        {/* Lista */}
-        <div className="grid gap-6">
+            {categories.map((category) => (
 
-          {loading ? (
-            <div>Carregando...</div>
-          ) : (
-            categories.map((category) => (
-              <div
+              <CategoryCard
                 key={category.id}
-                className="
-                  bg-white
-                  rounded-3xl
-                  border
-                  border-slate-200
-                  p-6
-                  flex
-                  items-center
-                  justify-between
-                "
-              >
-                <div className="flex items-center gap-4">
+                category={category}
 
-                  <div
-                    className="
-                      w-14
-                      h-14
-                      rounded-2xl
-                      bg-blue-100
-                      flex
-                      items-center
-                      justify-center
-                    "
-                  >
-                    <Tags
-                      className="text-blue-600"
-                    />
-                  </div>
+                onEdit={() => {
 
-                  <div>
+                }}
 
-                    <h3 className="font-bold text-lg">
-                      {category.name}
-                    </h3>
+                onDelete={() => {
 
-                    <p className="text-slate-500">
-                      /{category.slug}
-                    </p>
+                }}
 
-                    <p
-                      className={`
-                        text-sm mt-1
-                        ${
-                          category.active
-                            ? "text-green-600"
-                            : "text-red-500"
-                        }
-                      `}
-                    >
-                      {category.active
-                        ? "Ativa"
-                        : "Inativa"}
-                    </p>
+                onAddSubcategory={() => {
 
-                  </div>
+                  setSelectedCategory(category);
 
-                </div>
+                  setOpenSubcategoryModal(true);
 
-                <div className="flex gap-3">
+                }}
+              />
 
-                  <button
-                    onClick={() =>
-                      toggleCategory(category)
-                    }
-                    className="
-                      px-4
-                      py-3
-                      rounded-2xl
-                      bg-blue-600
-                      text-white
-                    "
-                  >
-                    {category.active ? (
-                      <PowerOff size={18} />
-                    ) : (
-                      <Power size={18} />
-                    )}
-                  </button>
+            ))}
 
-                  <button
-                    onClick={() =>
-                      deleteCategory(category.id)
-                    }
-                    className="
-                      px-4
-                      py-3
-                      rounded-2xl
-                      bg-red-500
-                      text-white
-                    "
-                  >
-                    <Trash2 size={18} />
-                  </button>
-
-                </div>
-
-              </div>
-            ))
-          )}
+          </div>
 
         </div>
 
       </main>
 
-    </div>
+      <CategoryModal
+        open={openCategoryModal}
+        onClose={() =>
+          setOpenCategoryModal(false)
+        }
+        onSuccess={() =>
+          window.location.reload()
+        }
+      />
+
+      {selectedCategory && (
+
+        <SubcategoryModal
+          open={openSubcategoryModal}
+          categoryId={selectedCategory.id}
+          onClose={() =>
+            setOpenSubcategoryModal(false)
+          }
+          onSuccess={() =>
+            window.location.reload()
+          }
+        />
+
+      )}
+
+   
+    </AdminLayout>
+
   );
+
 }

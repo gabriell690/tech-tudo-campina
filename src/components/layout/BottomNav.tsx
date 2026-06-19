@@ -20,18 +20,18 @@ export default function BottomNav({
   return (
     <div
       className="
-        md:hidden
-        fixed
-        bottom-0
-        left-0
-        right-0
-        h-20
-        bg-white
-        border-t
-        border-slate-200
-        z-50
-        shadow-lg
-      "
+md:hidden
+fixed
+bottom-0
+left-0
+right-0
+h-20
+bg-yellow-400
+border-t
+border-yellow-500
+z-50
+shadow-2xl
+"
     >
       <div className="grid grid-cols-4 h-full">
 

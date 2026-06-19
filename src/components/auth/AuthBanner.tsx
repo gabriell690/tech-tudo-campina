@@ -13,7 +13,7 @@ export default function AuthBanner() {
       text-white
       shadow-2xl
 
-      bg-gradient-to-br
+      bg-linear-to-br
       from-blue-700
       via-blue-800
       to-slate-950

@@ -123,7 +123,7 @@ export default function Dashboard() {
   return (
     <AdminLayout>
       {loading ? (
-        <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex items-center justify-center min-h-100">
           <p className="text-lg font-medium">
             Carregando dashboard...
           </p>

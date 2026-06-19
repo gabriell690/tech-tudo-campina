@@ -1,29 +1,21 @@
+/* eslint-disable no-empty-pattern */
 import {
   X,
   User,
   ShoppingBag,
   Heart,
-  Smartphone,
-  Laptop,
   LayoutDashboard,
   LogOut,
   ChevronRight,
-  Headphones,
-  Gamepad2,
-  Monitor,
-  Tv,
-  Wifi,
-  Watch
 } from "lucide-react";
 
-import {
-  Link,
-  useNavigate,
-} from "react-router-dom";
-
-import { useAuth } from "../../hooks/useAuth";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 import logo from "../../assets/logo.png";
+import { useAuth } from "../../hooks/useAuth";
+import { useCategories } from "../../hooks/useCategories";
+import CategoryAccordion from "./CategoryAccordion";
 
 interface MobileDrawerProps {
   open: boolean;
@@ -35,7 +27,12 @@ export default function MobileDrawer({
   onClose,
 }: MobileDrawerProps) {
 
-  const navigate = useNavigate();
+  
+const navigate = useNavigate();
+
+const [] = useState<string | null>(null);
+
+const { categories } = useCategories();
 
 const {
   user,
@@ -49,49 +46,11 @@ const firstName =
   "Usuário";
 
 async function handleLogout() {
-
   await signOut();
-
   onClose();
-
   navigate("/");
-
 }
 
-  const categories = [
-    {
-      name: "Smartphones",
-      icon: Smartphone,
-    },
-    {
-      name: "Notebooks",
-      icon: Laptop,
-    },
-    {
-      name: "Informática",
-      icon: Monitor,
-    },
-    {
-      name: "Games",
-      icon: Gamepad2,
-    },
-    {
-      name: "Fones",
-      icon: Headphones,
-    },
-    {
-      name: "Smartwatches",
-      icon: Watch,
-    },
-    {
-      name: "Redes",
-      icon: Wifi,
-    },
-    {
-      name: "TV & Streaming",
-      icon: Tv,
-    },
-  ];
 
   return (
     <>
@@ -102,22 +61,23 @@ async function handleLogout() {
         />
       )}
 
-      <aside
-        className={`
-          fixed
-          top-0
-          left-0
-          h-screen
-          w-82.5
-          bg-white
-          z-[999]
-          transition-transform
-          duration-300
-         overflow-y-auto
-pb-28
-          ${open ? "translate-x-0" : "-translate-x-full"}
-        `}
-      >
+     <aside
+  className={`
+    fixed
+    top-0
+    left-0
+    h-screen
+    w-82.5
+    bg-[#071A35]
+    text-white
+    z-999
+    transition-transform
+    duration-300
+    overflow-y-auto
+    pb-28
+    ${open ? "translate-x-0" : "-translate-x-full"}
+`}
+>
 
         {/* Topo */}
         <div className="bg-[#071A35] p-3 flex items-center justify-between">
@@ -139,7 +99,11 @@ pb-28
         </div>
 
       {/* Conta */}
-<div className="p-5 border-b">
+<div className="
+p-5
+border-b
+border-blue-900
+">
 
   {user ? (
 
@@ -165,7 +129,7 @@ pb-28
               {firstName}
             </h3>
 
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-300">
               Minha Conta
             </p>
 
@@ -221,7 +185,7 @@ pb-28
             flex
             items-center
             gap-4
-            text-yellow-600
+            text-yellow-400
           "
           >
             <LayoutDashboard size={22} />
@@ -278,74 +242,38 @@ pb-28
 
 </div>
 
-        {/* Pedidos */}
-        <div className="p-5 border-b">
+   {/* Categorias */}
+<div className="
+p-5
+border-t
+border-blue-900
+">
 
-          <Link
-            to="/pedidos"
-            onClick={onClose}
-            className="flex items-center gap-4"
-          >
-            <ShoppingBag size={22} />
+ <h2 className="
+font-bold
+text-xl
+mb-5
+text-yellow-400
+">
+    Categorias
+  </h2>
 
-            <span>Meus Pedidos</span>
+  <div className="space-y-3">
 
-          </Link>
+  {categories.map((category) => (
 
-        </div>
+    <CategoryAccordion
+      key={category.id}
+      category={category}
+      onClose={onClose}
+    />
 
-        {/* Favoritos */}
-        <div className="p-5 border-b">
+  ))}
 
-          <Link
-            to="/favoritos"
-            onClick={onClose}
-            className="flex items-center gap-4"
-          >
-            <Heart size={22} />
+</div>
 
-            <span>Favoritos</span>
+</div>
 
-          </Link>
-
-        </div>
-
-        {/* Categorias */}
-        <div className="p-5">
-
-          <h2 className="font-bold text-lg mb-5">
-            Categorias
-          </h2>
-
-          <div className="space-y-5">
-
-            {categories.map((category) => {
-
-              const Icon = category.icon;
-
-              return (
-                <Link
-                  key={category.name}
-                  to={`/categoria/${category.name}`}
-                  onClick={onClose}
-                  className="
-                    flex
-                    items-center
-                    gap-4
-                    text-slate-700
-                    hover:text-blue-600
-                  "
-                >
-                  <Icon size={22} />
-
-                  {category.name}
-                </Link>
-              );
-            })}
-
-          </div>
-
-        </div>
 
       </aside>
     </>

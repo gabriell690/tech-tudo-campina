@@ -85,7 +85,7 @@ export default function AdminSettings() {
   if (loading) {
     return (
       <AdminLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex items-center justify-center min-h-100">
           <p>Carregando...</p>
         </div>
       </AdminLayout>

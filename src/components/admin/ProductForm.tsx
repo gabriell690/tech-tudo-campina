@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { useCategories } from "../../hooks/useCategories";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import { supabase } from "../../lib/supabase";
 
@@ -11,8 +11,12 @@ export default function ProductForm() {
 
   const [name, setName] = useState("");
   const [brand, setBrand] = useState("");
-  const [category, setCategory] =
-    useState("Smartphones");
+
+ const [categoryId, setCategoryId] =
+  useState("");
+const [subcategoryId, setSubcategoryId] =
+  useState("");
+const { categories } = useCategories();
 
   const [stock, setStock] = useState("");
   const [price, setPrice] = useState("");
@@ -84,7 +88,8 @@ export default function ProductForm() {
 
             stock: Number(stock),
 
-            category,
+            category_id: categoryId,
+subcategory_id: subcategoryId,
             brand,
 
             image_url: imageUrl,
@@ -112,6 +117,13 @@ export default function ProductForm() {
       setLoading(false);
     }
   }
+const selectedCategory =
+  categories.find(
+    category => category.id === categoryId
+  );
+
+const subcategories =
+  selectedCategory?.subcategories ?? [];
 
   return (
     <div className="flex">
@@ -180,50 +192,56 @@ export default function ProductForm() {
               />
 
               <select
-                value={category}
-                onChange={(e) =>
-                  setCategory(
-                    e.target.value
-                  )
-                }
-                className="
-                  border
-                  rounded-2xl
-                  p-3
-                "
-              >
-                <option>
-                  Smartphones
-                </option>
+  value={categoryId}
+  onChange={(e) => {
+    setCategoryId(e.target.value);
+    setSubcategoryId("");
+  }}
+  className="border rounded-2xl p-3"
+>
 
-                <option>
-                  Notebooks
-                </option>
+  <option value="">
+    Selecione uma categoria
+  </option>
 
-                <option>
-                  Informática
-                </option>
+  {categories.map(category => (
 
-                <option>
-                  Games
-                </option>
+    <option
+      key={category.id}
+      value={category.id}
+    >
+      {category.name}
+    </option>
 
-                <option>
-                  Smartwatches
-                </option>
+  ))}
 
-                <option>
-                  Redes
-                </option>
+</select>
+<select
+  value={subcategoryId}
+  onChange={(e) =>
+    setSubcategoryId(
+      e.target.value
+    )
+  }
+  className="border rounded-2xl p-3"
+>
 
-                <option>
-                  TV & Streaming
-                </option>
+  <option value="">
+    Selecione uma subcategoria
+  </option>
 
-                <option>
-                  Acessórios
-                </option>
-              </select>
+  {subcategories.map(sub => (
+
+    <option
+      key={sub.id}
+      value={sub.id}
+    >
+      {sub.name}
+    </option>
+
+  ))}
+
+</select>
 
               <input
                 type="number"
