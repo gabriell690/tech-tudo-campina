@@ -32,8 +32,8 @@ const { categories } = useCategories();
   const [active, setActive] =
     useState(true);
 
-  const [imageFile, setImageFile] =
-    useState<File | null>(null);
+ const [imageFiles, setImageFiles] =
+  useState<File[]>([]);
 
   async function handleSubmit(
     e: React.FormEvent
@@ -43,29 +43,29 @@ const { categories } = useCategories();
     try {
       setLoading(true);
 
-      let imageUrl = "";
+    const imageUrls: string[] = [];
 
-      if (imageFile) {
-        const fileName =
-          `${Date.now()}-${imageFile.name}`;
+for (const file of imageFiles) {
 
-        const {
-          error: uploadError,
-        } = await supabase.storage
-          .from("products")
-          .upload(fileName, imageFile);
+  const fileName =
+    `${Date.now()}-${Math.random()}-${file.name}`;
 
-        if (uploadError) {
-          throw uploadError;
-        }
+  const {
+    error: uploadError
+  } = await supabase.storage
+    .from("products")
+    .upload(fileName, file);
 
-        const { data } =
-          supabase.storage
-            .from("products")
-            .getPublicUrl(fileName);
+  if (uploadError)
+    throw uploadError;
 
-        imageUrl = data.publicUrl;
-      }
+  const { data } =
+    supabase.storage
+      .from("products")
+      .getPublicUrl(fileName);
+
+  imageUrls.push(data.publicUrl);
+}
 
       const slug = name
         .toLowerCase()
@@ -92,7 +92,8 @@ const { categories } = useCategories();
 subcategory_id: subcategoryId,
             brand,
 
-            image_url: imageUrl,
+           image_url: imageUrls[0],
+images: imageUrls,
 
             featured,
             active,
@@ -107,13 +108,11 @@ subcategory_id: subcategoryId,
       );
 
       navigate("/admin/products");
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+  console.error(error);
 
-      alert(
-        "Erro ao cadastrar produto."
-      );
-    } finally {
+  alert(error.message);
+} finally {
       setLoading(false);
     }
   }
@@ -306,29 +305,28 @@ const subcategories =
                   Imagem do Produto
                 </label>
 
-                <input
-                  type="file"
-                  accept="
-                    image/png,
-                    image/jpeg,
-                    image/jpg,
-                    image/webp
-                  "
-                  onChange={(e) =>
-                    setImageFile(
-                      e.target
-                        .files?.[0] ||
-                        null
-                    )
-                  }
-                  className="
-                    border
-                    rounded-2xl
-                    p-3
-                    w-full
-                  "
-                  required
-                />
+               <input
+  type="file"
+  multiple
+  accept="
+    image/png,
+    image/jpeg,
+    image/jpg,
+    image/webp
+  "
+  onChange={(e) =>
+    setImageFiles(
+      Array.from(e.target.files || []).slice(0, 5)
+    )
+  }
+  className="
+    border
+    rounded-2xl
+    p-3
+    w-full
+  "
+  required
+/>
               </div>
             </div>
 

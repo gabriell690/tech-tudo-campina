@@ -27,22 +27,25 @@ export default function ProductCard({
       : 0;
 
   return (
-    <article
-      className="
-      group
-      relative
-      overflow-hidden
-      rounded-[28px]
-      bg-white
-      border
-      border-slate-200
-      shadow-sm
-      transition-all
-      duration-300
-      hover:shadow-2xl
-      hover:-translate-y-1
-    "
-    >
+   <article
+  className="
+    group
+    relative
+    overflow-hidden
+    rounded-[28px]
+    bg-white
+    border
+    border-slate-200
+    shadow-sm
+    transition-all
+    duration-300
+    hover:shadow-2xl
+    hover:-translate-y-1
+
+    max-w-[320px]
+    min-h-[560px]
+  "
+>
       {/* Desconto */}
       {product.old_price && (
         <div
@@ -97,21 +100,20 @@ export default function ProductCard({
           bg-slate-50
         "
       >
-        <img
-          src={product.image_url || product.image}
-          alt={product.name}
-          loading="lazy"
-          className="
-            w-full
-            h-44
-            md:h-100
-            object-contain
-            p-5
-            transition-transform
-            duration-500
-            group-hover:scale-105
-          "
-        />
+     <img
+  src={product.image_url || product.image}
+  alt={product.name}
+  loading="lazy"
+  className="
+    w-full
+    h-72
+    md:h-80
+    object-cover
+    transition-transform
+    duration-500
+    group-hover:scale-105
+  "
+/>
       </Link>
 
       {/* Conteúdo */}
@@ -131,7 +133,15 @@ export default function ProductCard({
         </p>
 
         {/* Nome */}
-        <Link to={`/produto/${product.slug}`}>
+       <Link
+  to={`/produto/${product.slug}`}
+  className="
+    block
+    bg-slate-50
+    overflow-hidden
+    rounded-t-[28px]
+  "
+>
           <h3
             className="
             mt-2
