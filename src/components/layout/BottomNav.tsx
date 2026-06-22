@@ -1,6 +1,6 @@
 import {
   Menu,
-  Search,
+  User,
   Heart,
   ShoppingCart,
 } from "lucide-react";
@@ -53,22 +53,23 @@ shadow-2xl
           </span>
         </button>
 
-        {/* Busca */}
-        <button
-          className="
-            flex
-            flex-col
-            items-center
-            justify-center
-            text-slate-700
-            active:text-blue-600
-          "
-        >
-          <Search size={24} />
-          <span className="text-xs mt-1">
-            Busca
-          </span>
-        </button>
+        {/* Conta */}
+       <Link
+  to="/minha-conta"
+  className="
+    flex
+    flex-col
+    items-center
+    justify-center
+    text-slate-700
+    active:text-blue-600
+  "
+>
+  <User size={24} />
+  <span className="text-xs mt-1">
+    Conta
+  </span>
+</Link>
 
         {/* Favoritos */}
         <button

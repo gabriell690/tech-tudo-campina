@@ -1,20 +1,24 @@
 import { useState } from "react";
 import { supabase } from "../../lib/supabase";
 
+import type { Category } from "../../types/category";
+
 interface Props {
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  category?: Category | null;
 }
 
 export default function CategoryModal({
   open,
   onClose,
   onSuccess,
+  category,
 }: Props) {
 
-  const [name, setName] = useState("");
-  const [icon, setIcon] = useState("");
+const [name, setName] = useState(category?.name || "");
+const [icon, setIcon] = useState(category?.icon || "");
   const [loading, setLoading] = useState(false);
 
   if (!open) return null;
@@ -34,14 +38,27 @@ export default function CategoryModal({
         .trim()
         .replaceAll(" ", "-");
 
-      const { error } = await supabase
-        .from("categories")
-        .insert({
-          name,
-          slug,
-          icon,
-          active: true,
-        });
+     let error;
+
+if (category) {
+  ({ error } = await supabase
+    .from("categories")
+    .update({
+      name,
+      slug,
+      icon,
+    })
+    .eq("id", category.id));
+} else {
+  ({ error } = await supabase
+    .from("categories")
+    .insert({
+      name,
+      slug,
+      icon,
+      active: true,
+    }));
+}
 
       if (error) throw error;
 
@@ -88,9 +105,9 @@ export default function CategoryModal({
         max-w-md
       ">
 
-        <h2 className="text-2xl font-bold mb-6">
-          Nova Categoria
-        </h2>
+       <h2 className="text-2xl font-bold mb-6">
+  {category ? "Editar Categoria" : "Nova Categoria"}
+</h2>
 
         <form
           onSubmit={handleSubmit}

@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from "react";
 
 import AdminLayout from "../layout/AdminLayout";
 import CategoryCard from "../../components/admin/CategoryCard";
 import CategoryModal from "../../components/admin/CategoryModal";
 import SubcategoryModal from "../../components/admin/SubcategoryModal";
-
+import { supabase } from "../../lib/supabase";
 import { useCategories } from "../../hooks/useCategories";
 import type { Category } from "../../types/category";
 
@@ -21,6 +22,9 @@ export default function AdminCategories() {
   const [selectedCategory, setSelectedCategory] =
     useState<Category | null>(null);
 
+    const [editingCategory, setEditingCategory] =
+  useState<Category | null>(null);
+  
   return (
 
       <AdminLayout>
@@ -98,13 +102,31 @@ font-medium
                 key={category.id}
                 category={category}
 
-                onEdit={() => {
+               onEdit={() => {
+  setEditingCategory(category);
+  setOpenCategoryModal(true);
+}}
 
-                }}
+onDelete={async () => {
 
-                onDelete={() => {
+  const confirmDelete = confirm(
+    `Deseja excluir ${category.name}?`
+  );
 
-                }}
+  if (!confirmDelete) return;
+
+  const { error } = await supabase
+    .from("categories")
+    .delete()
+    .eq("id", category.id);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  window.location.reload();
+}}
 
                 onAddSubcategory={() => {
 
@@ -123,15 +145,17 @@ font-medium
 
       </main>
 
-      <CategoryModal
-        open={openCategoryModal}
-        onClose={() =>
-          setOpenCategoryModal(false)
-        }
-        onSuccess={() =>
-          window.location.reload()
-        }
-      />
+     <CategoryModal
+  open={openCategoryModal}
+  category={editingCategory}
+  onClose={() => {
+    setOpenCategoryModal(false);
+    setEditingCategory(null);
+  }}
+  onSuccess={() =>
+    window.location.reload()
+  }
+/>
 
       {selectedCategory && (
 
