@@ -18,7 +18,7 @@ import Register from "../pages/Register";
 
 import AdminRoute from "./AdminRoute";
 import ProtectedRoute from "./ProtectedRoute";
-
+import SubcategoryPage from "../pages/SubcategoryPage";
 import Dashboard from "../components/admin/Dashboard";
 import AdminProducts from "../components/admin/Products";
 import ProductForm from "../components/admin/ProductForm";
@@ -52,9 +52,14 @@ export default function AppRoutes() {
           />
 
           <Route
-            path="/categoria/:category"
-            element={<CategoryPage />}
-          />
+  path="/categoria/:category"
+  element={<CategoryPage />}
+/>
+
+<Route
+  path="/categoria/:categorySlug/:subcategorySlug"
+  element={<SubcategoryPage />}
+/>
 
           <Route
             path="/produto/:slug"

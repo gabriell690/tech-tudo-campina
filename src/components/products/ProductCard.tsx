@@ -43,7 +43,7 @@ export default function ProductCard({
     hover:-translate-y-1
 
     max-w-[320px]
-    min-h-[560px]
+    min-h-140
   "
 >
       {/* Desconto */}
