@@ -35,9 +35,7 @@ export default function MainLayout() {
       </main>
 
       {/* Navegação inferior mobile */}
-      <BottomNav
-        onMenuClick={() => setMobileOpen(true)}
-      />
+     <BottomNav />
     </>
   );
 }

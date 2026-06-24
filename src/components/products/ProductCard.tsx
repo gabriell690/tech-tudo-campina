@@ -141,7 +141,7 @@ export default function ProductCard({
           text-sm
           leading-5
           line-clamp-2
-          min-h-[40px]
+          min-h-10
           "
         >
           {product.name}

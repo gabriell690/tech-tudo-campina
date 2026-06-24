@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 import {
   User,
   Heart,
@@ -8,13 +8,9 @@ import { House } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 
-interface BottomNavProps {
-  onMenuClick: () => void;
-}
 
-export default function BottomNav({
-  onMenuClick,
-}: BottomNavProps) {
+
+export default function BottomNav() {
   const { cartCount } = useCart();
 
   return (

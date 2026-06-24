@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-empty-pattern */
+ 
 import {
   Menu,
   Search,
@@ -43,7 +44,7 @@ const { categories } = useCategories();
 const [hoveredCategory, setHoveredCategory] =
   useState<string | null>(null);
 
-const [closeTimeout, setCloseTimeout] =
+const [] =
   useState<ReturnType<typeof setTimeout> | null>(null);
 
 const {
@@ -61,27 +62,7 @@ const navigate = useNavigate();
 
 const { cartCount } = useCart();
 
-const handleCategoryEnter = (
-  categoryId: string
-) => {
 
-  if (closeTimeout) {
-    clearTimeout(closeTimeout);
-  }
-
-  setHoveredCategory(categoryId);
-};
-
-const handleCategoryLeave = () => {
-
-  const timeout = setTimeout(() => {
-
-    setHoveredCategory(null);
-
-  }, 300);
-
-  setCloseTimeout(timeout);
-};
 
 async function handleLogout() {
 
