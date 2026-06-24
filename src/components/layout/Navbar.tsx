@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Menu,
   Search,
@@ -34,35 +35,69 @@ export default function Navbar({
   onMenuClick,
 }: NavbarProps) {
 
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
-
+const [userMenuOpen, setUserMenuOpen] =
   useState(false);
 
 const { categories } = useCategories();
+
 const [hoveredCategory, setHoveredCategory] =
   useState<string | null>(null);
 
-  const {
-    user,
-    profile,
-    signOut,
-  } = useAuth();
-  
+const [closeTimeout, setCloseTimeout] =
+  useState<ReturnType<typeof setTimeout> | null>(null);
 
-  
+const {
+  user,
+  profile,
+  signOut,
+} = useAuth();
+
 const firstName =
   profile?.name?.split(" ")[0] ||
   user?.email?.split("@")[0] ||
   "Usuário";
 
-  const navigate = useNavigate();
+const navigate = useNavigate();
 
-  const { cartCount } = useCart();
+const { cartCount } = useCart();
 
-  async function handleLogout() {
-    await signOut();
-    navigate("/");
+const handleCategoryEnter = (
+  categoryId: string
+) => {
+
+  if (closeTimeout) {
+    clearTimeout(closeTimeout);
   }
+
+  setHoveredCategory(categoryId);
+};
+
+const handleCategoryLeave = () => {
+
+  const timeout = setTimeout(() => {
+
+    setHoveredCategory(null);
+
+  }, 300);
+
+  setCloseTimeout(timeout);
+};
+
+async function handleLogout() {
+
+  try {
+
+    await signOut();
+
+    navigate("/");
+
+  } catch (error) {
+
+    console.error(error);
+
+  }
+
+}
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 shadow-lg">
@@ -178,7 +213,7 @@ user ? (
         right-0
         mt-4
         w-64
-        bg-white
+       bg-white
         rounded-2xl
         shadow-2xl
         p-4
@@ -439,34 +474,32 @@ user ? (
       </div>
 
 {/* Categorias */}
-<div className="hidden lg:block bg-white border-b">
+<div className="hidden lg:block bg-yellow-400 border-b border-yellow-500">
 
   <Container>
 
     <div className="relative">
 
-      <nav className="flex items-center justify-center gap-10 h-12">
+     <nav className="flex items-center justify-center gap-12 h-14">
 
         {categories.map((category) => (
 
-          <div
-            key={category.id}
-            className="relative"
-            onMouseEnter={() =>
-              setHoveredCategory(category.id)
-            }
-            onMouseLeave={() =>
-              setHoveredCategory(null)
-            }
-          >
+         <div
+  key={category.id}
+  className="relative"
+  onMouseEnter={() =>
+    setHoveredCategory(category.id)
+  }
+>
 
             <Link
               to={`/categoria/${category.slug}`}
               className="
-              font-medium
-              text-slate-700
-              hover:text-blue-600
-              "
+font-semibold
+text-slate-900
+hover:text-white
+transition
+"
             >
               {category.name}
             </Link>
@@ -475,21 +508,26 @@ user ? (
               hoveredCategory === category.id &&
               category.subcategories.length > 0 && (
 
-                <div
-                  className="
-                  absolute
-                  top-full
-                  left-1/2
-                  -translate-x-1/2
-                  mt-2
-                  bg-white
-                  rounded-3xl
-                  shadow-2xl
-                  w-72
-                  p-5
-                  z-50
-                "
-                >
+               <div
+  onMouseLeave={() =>
+    setHoveredCategory(null)
+  }
+  className="
+  absolute
+  top-full
+  left-1/2
+  -translate-x-1/2
+  pt-2
+bg-white
+border
+border-yellow-200
+  rounded-3xl
+  shadow-2xl
+  w-72
+  p-5
+  z-50
+"
+>
 
                   <h3 className="
                   font-bold

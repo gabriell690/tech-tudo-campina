@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
-  Menu,
   User,
   Heart,
   ShoppingCart,
 } from "lucide-react";
-
+import { House } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 
@@ -36,22 +36,23 @@ shadow-2xl
       <div className="grid grid-cols-4 h-full">
 
         {/* Menu */}
-        <button
-          onClick={onMenuClick}
-          className="
-            flex
-            flex-col
-            items-center
-            justify-center
-            text-slate-700
-            active:text-blue-600
-          "
-        >
-          <Menu size={24} />
-          <span className="text-xs mt-1">
-            Menu
-          </span>
-        </button>
+      <Link
+  to="/"
+  className="
+    flex
+    flex-col
+    items-center
+    justify-center
+    text-slate-700
+    active:text-blue-600
+  "
+>
+  <House size={24} />
+
+  <span className="text-xs mt-1">
+    Home
+  </span>
+</Link>
 
         {/* Conta */}
        <Link
