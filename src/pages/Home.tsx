@@ -1,31 +1,48 @@
-import Categories from "../components/home/Categories";
-import FeaturedProducts from "../components/home/FeaturedProducts";
+import ProductSection from "../components/home/ProductSection";
 import Brands from "../components/home/Brands";
 import Benefits from "../components/home/Benefits";
 import Footer from "../components/layout/Footer";
 import PromoBanner from "../components/home/PromoBanner";
 import TrustSection from "../components/home/TrustSection";
 import HeroSection from "../components/home/HeroSection";
+import Categories from "../components/home/Categories";
 
 export default function Home() {
   return (
- <>
-  
- <HeroSection />
-  
-  <Categories />
+    <>
+      <HeroSection />
 
-  <FeaturedProducts />
+      <ProductSection
+    title="Produtos em Destaque"
+    subtitle="Os produtos mais procurados."
+    featured
+/>
 
-  <Brands />
+<ProductSection
+    title="Espaço Gamer"
+    subtitle="Monte seu setup gamer."
+    category="Espaço Gamer"
+/>
 
-  <PromoBanner />
+<ProductSection
+    title="Periféricos"
+    subtitle="Mouse, teclado, headset e muito mais."
+    category="Periféricos"
+/>
 
-  <Benefits />
 
-  <TrustSection />
 
-  <Footer />
-</>
+      <PromoBanner />
+
+      <Brands />
+
+      <Categories />
+
+      <Benefits />
+
+      <TrustSection />
+
+      <Footer />
+    </>
   );
 }

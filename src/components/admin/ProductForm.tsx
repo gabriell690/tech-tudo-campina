@@ -1,247 +1,402 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/immutability */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
+
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
-import { useCategories } from "../../hooks/useCategories";
+
 import AdminSidebar from "../../components/admin/AdminSidebar";
+import { useCategories } from "../../hooks/useCategories";
 import { supabase } from "../../lib/supabase";
+import { useParams } from "react-router-dom";
 
 export default function ProductForm() {
+
   const navigate = useNavigate();
+
+  const { id } = useParams();
+
+const isEditing = Boolean(id);
+
+  const { categories } = useCategories();
 
   const [loading, setLoading] = useState(false);
 
   const [name, setName] = useState("");
   const [brand, setBrand] = useState("");
 
- const [categoryId, setCategoryId] =
-  useState("");
-const [subcategoryId, setSubcategoryId] =
-  useState("");
-const { categories } = useCategories();
+  const [description, setDescription] = useState("");
+
+  const [price, setPrice] = useState("");
+
+  const [oldPrice, setOldPrice] = useState("");
 
   const [stock, setStock] = useState("");
-  const [price, setPrice] = useState("");
-  const [oldPrice, setOldPrice] =
+
+  const [featured, setFeatured] = useState(false);
+
+  const [active, setActive] = useState(true);
+
+  const [categoryId, setCategoryId] = useState("");
+
+  const [subcategoryId, setSubcategoryId] =
     useState("");
 
-  const [description, setDescription] =
-    useState("");
+  const [imageFiles, setImageFiles] =
+    useState<File[]>([]);
 
-  const [featured, setFeatured] =
-    useState(false);
+  const selectedCategory = useMemo(() => {
 
-  const [active, setActive] =
-    useState(true);
+    return categories.find(
+      (item) => item.id === categoryId
+    );
 
- const [imageFiles, setImageFiles] =
-  useState<File[]>([]);
+  }, [categories, categoryId]);
+
+  const subcategories =
+    selectedCategory?.subcategories ?? [];
+    useEffect(() => {
+
+  loadProduct();
+}, [id]);
+
+async function loadProduct() {
+
+  if (!id) return;
+
+  const { data, error } =
+    await supabase
+      .from("products")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+  if (error || !data) return;
+
+  setName(data.name);
+  setBrand(data.brand);
+  setDescription(data.description);
+  setPrice(String(data.price));
+  setOldPrice(data.old_price ? String(data.old_price) : "");
+  setStock(String(data.stock));
+
+  setCategoryId(data.category_id ?? "");
+  setSubcategoryId(data.subcategory_id ?? "");
+
+  setFeatured(data.featured);
+  setActive(data.active);
+
+}
 
   async function handleSubmit(
     e: React.FormEvent
   ) {
+
     e.preventDefault();
 
+    if (!categoryId) {
+
+      alert("Selecione uma categoria.");
+
+      return;
+
+    }
+
     try {
+
       setLoading(true);
 
-    const imageUrls: string[] = [];
+      const imageUrls: string[] = [];
 
-for (const file of imageFiles) {
+      for (const file of imageFiles) {
 
-  const fileName =
-    `${Date.now()}-${Math.random()}-${file.name}`;
+        const fileName =
+          `${Date.now()}-${Math.random()}-${file.name}`;
 
-  const {
-    error: uploadError
-  } = await supabase.storage
-    .from("products")
-    .upload(fileName, file);
+        const {
+          error: uploadError,
+        } =
+          await supabase.storage
+            .from("products")
+            .upload(fileName, file);
 
-  if (uploadError)
-    throw uploadError;
+        if (uploadError) {
 
-  const { data } =
-    supabase.storage
+          throw uploadError;
+
+        }
+
+        const { data } =
+          supabase.storage
+            .from("products")
+            .getPublicUrl(fileName);
+
+        imageUrls.push(
+          data.publicUrl
+        );
+
+      }
+
+      const slug =
+        name
+          .toLowerCase()
+          .trim()
+          .replace(/[^\w\s-]/g, "")
+          .replace(/\s+/g, "-");
+
+      const payload = {
+
+        name,
+
+        slug,
+
+        brand,
+
+        description,
+
+        stock: Number(stock),
+
+        price: Number(price),
+
+        old_price:
+          oldPrice !== ""
+            ? Number(oldPrice)
+            : null,
+
+        category:
+          selectedCategory?.name ?? "",
+
+        category_id:
+          categoryId,
+
+        subcategory_id:
+          subcategoryId || null,
+
+        image_url:
+          imageUrls[0] ?? "",
+
+        images:
+          imageUrls,
+
+        featured,
+
+        active,
+
+      };
+
+      console.log(payload);
+
+     let error = null;
+
+if (isEditing) {
+
+  const response =
+    await supabase
       .from("products")
-      .getPublicUrl(fileName);
+      .update(payload)
+      .eq("id", id);
 
-  imageUrls.push(data.publicUrl);
+  error = response.error;
+
+} else {
+
+  const response =
+    await supabase
+      .from("products")
+      .insert(payload);
+
+  error = response.error;
+
 }
 
-      const slug = name
-        .toLowerCase()
-        .trim()
-        .replaceAll(" ", "-");
+if (error) {
 
-      const { error } =
-        await supabase
-          .from("products")
-          .insert({
-            name,
-            slug,
-            description,
+  throw error;
 
-            price: Number(price),
-
-            old_price: oldPrice
-              ? Number(oldPrice)
-              : null,
-
-            stock: Number(stock),
-
-            category_id: categoryId,
-subcategory_id: subcategoryId,
-            brand,
-
-           image_url: imageUrls[0],
-images: imageUrls,
-
-            featured,
-            active,
-          });
-
-      if (error) {
-        throw error;
-      }
+}
 
       alert(
         "Produto cadastrado com sucesso!"
       );
 
-      navigate("/admin/products");
+      navigate(
+        "/admin/products"
+      );
+
     } catch (error: any) {
-  console.error(error);
 
-  alert(error.message);
-} finally {
+      console.error(error);
+
+      alert(
+        error.message
+      );
+
+    } finally {
+
       setLoading(false);
-    }
-  }
-const selectedCategory =
-  categories.find(
-    category => category.id === categoryId
-  );
 
-const subcategories =
-  selectedCategory?.subcategories ?? [];
+    }
+
+  }
 
   return (
+
     <div className="flex">
+
       <AdminSidebar />
 
       <main
         className="
           flex-1
-          bg-slate-100
           min-h-screen
+          bg-slate-100
           p-8
         "
       >
+
         <div className="max-w-5xl">
-          <h1 className="text-4xl font-bold">
+
+          <h1
+            className="
+              text-4xl
+              font-bold
+              text-slate-800
+            "
+          >
             Novo Produto
           </h1>
 
           <form
             onSubmit={handleSubmit}
             className="
-              bg-white
-              rounded-3xl
-              p-8
               mt-8
+              rounded-3xl
+              bg-white
+              p-8
               shadow-sm
             "
           >
+
             <div
               className="
                 grid
-                md:grid-cols-2
                 gap-6
+                md:grid-cols-2
               "
             >
-              <input
+                            <input
+                type="text"
                 placeholder="Nome do Produto"
                 value={name}
                 onChange={(e) =>
-                  setName(
-                    e.target.value
-                  )
+                  setName(e.target.value)
                 }
                 className="
-                  border
                   rounded-2xl
+                  border
+                  border-slate-300
                   p-3
+                  outline-none
+                  focus:border-orange-500
                 "
                 required
               />
 
               <input
+                type="text"
                 placeholder="Marca"
                 value={brand}
                 onChange={(e) =>
-                  setBrand(
-                    e.target.value
-                  )
+                  setBrand(e.target.value)
                 }
                 className="
-                  border
                   rounded-2xl
+                  border
+                  border-slate-300
                   p-3
+                  outline-none
+                  focus:border-orange-500
                 "
                 required
               />
 
               <select
-  value={categoryId}
-  onChange={(e) => {
-    setCategoryId(e.target.value);
-    setSubcategoryId("");
-  }}
-  className="border rounded-2xl p-3"
->
+                value={categoryId}
+                onChange={(e) => {
+                  setCategoryId(
+                    e.target.value
+                  );
 
-  <option value="">
-    Selecione uma categoria
-  </option>
+                  setSubcategoryId("");
+                }}
+                className="
+                  rounded-2xl
+                  border
+                  border-slate-300
+                  p-3
+                  outline-none
+                  focus:border-orange-500
+                "
+                required
+              >
+                <option value="">
+                  Selecione uma categoria
+                </option>
 
-  {categories.map(category => (
+                {categories.map(
+                  (category) => (
 
-    <option
-      key={category.id}
-      value={category.id}
-    >
-      {category.name}
-    </option>
+                    <option
+                      key={category.id}
+                      value={category.id}
+                    >
+                      {category.name}
+                    </option>
 
-  ))}
+                  )
+                )}
 
-</select>
-<select
-  value={subcategoryId}
-  onChange={(e) =>
-    setSubcategoryId(
-      e.target.value
-    )
-  }
-  className="border rounded-2xl p-3"
->
+              </select>
 
-  <option value="">
-    Selecione uma subcategoria
-  </option>
+              <select
+                value={subcategoryId}
+                onChange={(e) =>
+                  setSubcategoryId(
+                    e.target.value
+                  )
+                }
+                className="
+                  rounded-2xl
+                  border
+                  border-slate-300
+                  p-3
+                  outline-none
+                  focus:border-orange-500
+                "
+              >
 
-  {subcategories.map(sub => (
+                <option value="">
+                  Selecione uma subcategoria
+                </option>
 
-    <option
-      key={sub.id}
-      value={sub.id}
-    >
-      {sub.name}
-    </option>
+                {subcategories.map(
+                  (subcategory) => (
 
-  ))}
+                    <option
+                      key={subcategory.id}
+                      value={subcategory.id}
+                    >
+                      {subcategory.name}
+                    </option>
 
-</select>
+                  )
+                )}
+
+              </select>
 
               <input
                 type="number"
@@ -253,9 +408,12 @@ const subcategories =
                   )
                 }
                 className="
-                  border
                   rounded-2xl
+                  border
+                  border-slate-300
                   p-3
+                  outline-none
+                  focus:border-orange-500
                 "
                 required
               />
@@ -271,9 +429,12 @@ const subcategories =
                   )
                 }
                 className="
-                  border
                   rounded-2xl
+                  border
+                  border-slate-300
                   p-3
+                  outline-none
+                  focus:border-orange-500
                 "
                 required
               />
@@ -289,79 +450,101 @@ const subcategories =
                   )
                 }
                 className="
-                  border
                   rounded-2xl
+                  border
+                  border-slate-300
                   p-3
+                  outline-none
+                  focus:border-orange-500
                 "
               />
 
               <div className="md:col-span-2">
+
                 <label
                   className="
-                    block
                     mb-2
+                    block
                     font-medium
+                    text-slate-700
                   "
                 >
-                  Imagem do Produto
+                  Imagens do Produto
                 </label>
 
-               <input
-  type="file"
-  multiple
-  accept="
-    image/png,
-    image/jpeg,
-    image/jpg,
-    image/webp
-  "
-  onChange={(e) =>
-    setImageFiles(
-      Array.from(e.target.files || []).slice(0, 5)
-    )
-  }
-  className="
-    border
-    rounded-2xl
-    p-3
-    w-full
-  "
-  required
-/>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={(e) =>
+                    setImageFiles(
+                      Array.from(
+                        e.target.files || []
+                      ).slice(0, 5)
+                    )
+                  }
+                  className="
+                    w-full
+                    rounded-2xl
+                    border
+                    border-slate-300
+                    p-3
+                  "
+                  required
+                />
+
+                <p
+                  className="
+                    mt-2
+                    text-sm
+                    text-slate-500
+                  "
+                >
+                  Você pode enviar até 5 imagens.
+                </p>
+
               </div>
+
             </div>
 
             <textarea
-              placeholder="Descrição do Produto"
+              placeholder="Descrição do produto"
               value={description}
               onChange={(e) =>
                 setDescription(
                   e.target.value
                 )
               }
+              rows={6}
               className="
                 mt-6
-                border
-                rounded-2xl
-                p-4
                 w-full
+                rounded-2xl
+                border
+                border-slate-300
+                p-4
+                outline-none
+                focus:border-orange-500
               "
-              rows={6}
               required
             />
-
-            <div
+                        <div
               className="
-                mt-6
+                mt-8
                 flex
+                flex-wrap
+                items-center
                 gap-8
               "
             >
+
               <label
                 className="
                   flex
                   items-center
-                  gap-2
+                  gap-3
+                  text-slate-700
+                  font-medium
                 "
               >
                 <input
@@ -372,16 +555,24 @@ const subcategories =
                       e.target.checked
                     )
                   }
+                  className="
+                    h-5
+                    w-5
+                    accent-orange-500
+                  "
                 />
 
-                Destaque
+                Produto em Destaque
+
               </label>
 
               <label
                 className="
                   flex
                   items-center
-                  gap-2
+                  gap-3
+                  text-slate-700
+                  font-medium
                 "
               >
                 <input
@@ -392,35 +583,64 @@ const subcategories =
                       e.target.checked
                     )
                   }
+                  className="
+                    h-5
+                    w-5
+                    accent-green-600
+                  "
                 />
 
-                Ativo
+                Produto Ativo
+
               </label>
+
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
+            <div
               className="
-                mt-8
-                bg-blue-600
-                hover:bg-blue-700
-                text-white
-                px-8
-                py-3
-                rounded-2xl
-                font-medium
-                transition
-                disabled:opacity-50
+                mt-10
+                flex
+                justify-end
               "
             >
-              {loading
-                ? "Salvando..."
-                : "Salvar Produto"}
-            </button>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="
+                  rounded-xl
+                  bg-orange-500
+                  px-10
+                  py-3
+                  text-white
+                  font-semibold
+                  transition-all
+                  duration-300
+                  hover:bg-orange-600
+                  hover:shadow-lg
+                  disabled:cursor-not-allowed
+                  disabled:opacity-60
+                "
+              >
+
+                {loading
+  ? "Salvando..."
+  : isEditing
+    ? "Atualizar Produto"
+    : "Salvar Produto"}
+
+              </button>
+
+            </div>
+
           </form>
+
         </div>
+
       </main>
+
     </div>
+
   );
+
 }

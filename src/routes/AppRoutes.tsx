@@ -12,7 +12,6 @@ import ProductDetails from "../pages/ProductDetails";
 import Cart from "../pages/Cart";
 
 import CategoryPage from "../components/home/CategoryPage";
-
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 
@@ -20,7 +19,7 @@ import AdminRoute from "./AdminRoute";
 import ProtectedRoute from "./ProtectedRoute";
 import SubcategoryPage from "../pages/SubcategoryPage";
 import Dashboard from "../components/admin/Dashboard";
-import AdminProducts from "../components/admin/Products";
+import AdminProducts from "../components/admin/AdminProducts";
 import ProductForm from "../components/admin/ProductForm";
 import AdminOrders from "../components/admin/AdminOrders";
 import AdminSettings from "../components/admin/AdminSettings";
@@ -51,11 +50,6 @@ export default function AppRoutes() {
             element={<Products />}
           />
 
-          <Route
-  path="/categoria/:category"
-  element={<CategoryPage />}
-/>
-
 <Route
   path="/categoria/:categorySlug/:subcategorySlug"
   element={<SubcategoryPage />}
@@ -65,6 +59,10 @@ export default function AppRoutes() {
             path="/produto/:slug"
             element={<ProductDetails />}
           />
+          <Route
+  path="/categoria/:category"
+  element={<CategoryPage />}
+/>
 
           <Route
             path="/carrinho"
@@ -131,7 +129,10 @@ export default function AppRoutes() {
             </AdminRoute>
           }
         />
-
+<Route
+  path="/admin/products/edit/:id"
+  element={<ProductForm />}
+/>
         <Route
           path="/admin/products/new"
           element={

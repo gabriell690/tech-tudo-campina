@@ -1,86 +1,102 @@
 import { useState } from "react";
 import { Menu } from "lucide-react";
 
-import AdminSidebar from "../../components/admin/AdminSidebar";
+import AdminSidebar from "../admin/AdminSidebar";
 
-interface Props {
+interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
 export default function AdminLayout({
   children,
-}: Props) {
+}: AdminLayoutProps) {
 
-  const [mobileMenu, setMobileMenu] =
+  const [mobileOpen, setMobileOpen] =
     useState(false);
 
   return (
 
-    <div className="min-h-screen bg-slate-100">
+    <div className="h-screen flex bg-slate-100">
 
       <AdminSidebar
-        mobileOpen={mobileMenu}
-        onClose={() =>
-          setMobileMenu(false)
-        }
+        mobileOpen={mobileOpen}
+        onClose={() => setMobileOpen(false)}
       />
 
-      {/* Header Mobile */}
-      <header
+      <div
         className="
-        lg:hidden
-        fixed
-        top-0
-        left-0
-        right-0
-        h-16
-        bg-[#071A35]
-        border-b
-        border-blue-900
-        flex
-        items-center
-        px-5
-        z-40
+          flex
+          flex-col
+          flex-1
+          lg:ml-10
+          overflow-hidden
         "
       >
 
-        <button
-          onClick={() =>
-            setMobileMenu(true)
-          }
-          className="text-white"
-        >
-          <Menu size={26} />
-        </button>
+        {/* Topbar Mobile */}
 
-        <h1
+        <header
           className="
-          ml-4
-          text-white
-          font-bold
+            lg:hidden
+            fixed
+            top-0
+            left-0
+            right-0
+            h-16
+            bg-[#071A35]
+            border-b
+            border-blue-900
+            z-50
+            flex
+            items-center
+            px-5
           "
         >
-          TechTudo Admin
-        </h1>
 
-      </header>
+          <button
+            onClick={() =>
+              setMobileOpen(true)
+            }
+            className="text-white"
+          >
 
-      {/* Conteúdo */}
-      <main
-        className="
-        lg:ml-72
-        min-h-screen
-        pt-20
-        lg:pt-8
-        p-4
-        md:p-8
-        overflow-x-hidden
-        "
-      >
+            <Menu size={26} />
 
-        {children}
+          </button>
 
-      </main>
+          <h1
+            className="
+              ml-4
+              text-white
+              font-bold
+              text-lg
+            "
+          >
+
+            TechTudo Admin
+
+          </h1>
+
+        </header>
+
+        {/* Conteúdo */}
+
+        <main
+          className="
+            flex-1
+            overflow-y-auto
+            pt-20
+            lg:pt-8
+            px-6
+            pb-8
+          "
+        >
+
+          {children}
+
+        </main>
+
+      </div>
 
     </div>
 

@@ -1,8 +1,4 @@
-import {
-  Heart,
-  Star,
-} from "lucide-react";
-
+import { Heart, Star, Truck } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { Product } from "../../types/product";
 
@@ -13,9 +9,8 @@ type ProductCardProps = {
 export default function ProductCard({
   product,
 }: ProductCardProps) {
-
   const discount =
-    product.old_price
+    product.old_price && product.old_price > product.price
       ? Math.round(
           ((product.old_price - product.price) /
             product.old_price) *
@@ -23,76 +18,105 @@ export default function ProductCard({
         )
       : 0;
 
+  const installment = (
+    Number(product.price) / 10
+  ).toFixed(2);
+
+  const rating = product.rating ?? 5;
+
   return (
     <Link
       to={`/produto/${product.slug}`}
       className="
-      group
-      block
-      bg-white
-      rounded-2xl
-      border
-      border-slate-200
-      overflow-hidden
-      transition-all
-      duration-300
-      hover:shadow-xl
-      hover:-translate-y-1
+        group
+        block
+        h-full
+        overflow-hidden
+        rounded-2xl
+        border
+        border-slate-200
+        bg-white
+        transition-all
+        duration-300
+        hover:-translate-y-1
+        hover:border-orange-300
+        hover:shadow-xl
       "
     >
+      {/* Header */}
+
+      <div className="flex items-center justify-between px-4 pt-4">
+
+        <div className="flex items-center gap-1 text-amber-500">
+
+          <Star
+            size={14}
+            fill="currentColor"
+          />
+
+          <span className="text-sm font-medium">
+            {rating.toFixed(1)}
+          </span>
+
+        </div>
+
+        <button
+          type="button"
+          onClick={(e) => e.preventDefault()}
+          className="
+            flex
+            h-9
+            w-9
+            items-center
+            justify-center
+            rounded-full
+            bg-slate-100
+            transition
+            hover:bg-red-50
+          "
+        >
+          <Heart
+            size={17}
+            className="text-slate-500"
+          />
+        </button>
+
+      </div>
 
       {/* Imagem */}
+
       <div
         className="
-        relative
-        bg-white
-        aspect-square
-        p-6
-        flex
-        items-center
-        justify-center
+          relative
+          flex
+          h-48 lg:h-52
+          items-center
+          justify-center
+          px-5
+          py-4
         "
       >
 
         {discount > 0 && (
-          <div
+
+          <span
             className="
-            absolute
-            top-3
-            left-3
-            bg-green-600
-            text-white
-            text-xs
-            font-bold
-            px-2
-            py-1
-            rounded-md
+              absolute
+              left-4
+              top-3
+              rounded-lg
+              bg-green-600
+              px-2
+              py-1
+              text-xs
+              font-semibold
+              text-white
             "
           >
             -{discount}%
-          </div>
-        )}
+          </span>
 
-        <button
-          className="
-          absolute
-          top-3
-          right-3
-          w-8
-          h-8
-          rounded-full
-          bg-white
-          shadow
-          flex
-          items-center
-          justify-center
-          "
-        >
-          <Heart
-            size={16}
-            className="text-slate-500"
-          />
-        </button>
+        )}
 
         <img
           src={
@@ -101,47 +125,60 @@ export default function ProductCard({
           }
           alt={product.name}
           className="
-          w-full
-          h-full
-          object-contain
-          transition
-          duration-300
-          group-hover:scale-105
+            h-full
+            w-full
+            object-contain
+            transition-transform
+            duration-300
+            group-hover:scale-105
           "
         />
 
       </div>
 
       {/* Conteúdo */}
-      <div className="p-4">
+
+      <div className="px-4 pb-5">
 
         <div
           className="
-          flex
-          items-center
-          gap-1
-          text-orange-500
-          text-xs
-          mb-2
+            mb-3
+            inline-flex
+            items-center
+            gap-2
+            rounded-full
+            bg-green-50
+            px-3
+            py-1
+            text-xs
+            font-medium
+            text-green-700
           "
         >
-          <Star
-            size={12}
-            fill="currentColor"
-          />
-
-          <span className="font-medium">
-            5.0
-          </span>
+          <Truck size={13} />
+          Entrega Rápida
         </div>
+
+        <p
+          className="
+            text-xs
+            uppercase
+            tracking-wide
+            text-slate-400
+          "
+        >
+          {product.brand}
+        </p>
 
         <h3
           className="
-          text-slate-800
-          text-sm
-          leading-5
-          line-clamp-2
-          min-h-10
+            mt-2
+            line-clamp-2
+            min-h-13
+            text-[15px]
+            font-medium
+            leading-6
+            text-slate-700
           "
         >
           {product.name}
@@ -150,42 +187,62 @@ export default function ProductCard({
         {product.old_price && (
           <p
             className="
-            mt-2
-            text-sm
-            text-slate-400
-            line-through
+              mt-3
+              text-sm
+              text-slate-400
+              line-through
             "
           >
             R$ {Number(product.old_price).toFixed(2)}
           </p>
         )}
 
-        <h4
-          className="
-          text-3xl
-          font-black
-          text-slate-900
-          mt-1
-          "
-        >
-          R$ {Number(product.price).toFixed(2)}
-        </h4>
+        <div className="mt-1 flex items-end gap-2">
+
+          <span
+            className="
+              text-2xl
+              font-semibold
+              text-slate-900
+            "
+          >
+            R$ {Number(product.price).toFixed(2)}
+          </span>
+
+          {discount > 0 && (
+            <span
+              className="
+                rounded
+                bg-green-100
+                px-2
+                py-1
+                text-xs
+                font-semibold
+                text-green-700
+              "
+            >
+              -{discount}%
+            </span>
+          )}
+
+        </div>
 
         <p
           className="
-          text-green-600
-          text-sm
-          font-medium
-          mt-1
+            mt-2
+            text-sm
+            text-slate-500
           "
         >
-          12x de R$
+          ou <strong>10x</strong> de
           {" "}
-          {(Number(product.price) / 12).toFixed(2)}
+          <strong>
+            R$ {installment}
+          </strong>
+          {" "}
+          sem juros
         </p>
-
       </div>
-
     </Link>
   );
 }
