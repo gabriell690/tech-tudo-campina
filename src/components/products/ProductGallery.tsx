@@ -22,7 +22,7 @@ export default function ProductGallery({
     useState(images[0]);
 
   return (
-    <div className="space-y-5">
+   <div className="space-y-5 w-full overflow-hidden">
 
       {/* Imagem principal */}
       <div
@@ -52,12 +52,21 @@ export default function ProductGallery({
 
       {/* Miniaturas */}
       <div
-        className="
-          flex
-          gap-4
-          overflow-x-auto
-        "
-      >
+  className="
+    w-full
+    max-w-full
+    overflow-x-auto
+    overflow-y-hidden
+    pb-2
+  "
+>
+  <div
+    className="
+      flex
+      gap-4
+      w-max
+    "
+  >
         {images.map((image, index) => (
 
           <button
@@ -66,7 +75,7 @@ export default function ProductGallery({
               setSelectedImage(image)
             }
             className={`
-              shrink-0
+              flex-none
               w-20
               h-20
               rounded-2xl
@@ -95,8 +104,9 @@ export default function ProductGallery({
 
           </button>
 
-        ))}
+              ))}
       </div>
+    </div>
 
     </div>
   );

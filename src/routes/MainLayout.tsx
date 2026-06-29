@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
-
+import WhatsAppFloat from "../components/layout/WhatsAppFloat";
 import Navbar from "../components/layout/Navbar";
 import BottomNav from "../components/layout/BottomNav";
 import MobileDrawer from "../components/layout/MobileDrawer";
@@ -33,7 +33,7 @@ export default function MainLayout() {
       >
         <Outlet />
       </main>
-
+<WhatsAppFloat />
       {/* Navegação inferior mobile */}
      <BottomNav />
     </>

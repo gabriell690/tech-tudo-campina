@@ -191,20 +191,28 @@ export default function ProductInfo({
       {/* Botões */}
       <div className="space-y-4">
 
-        <button
-          className="
-          w-full
-          h-14
-          rounded-3xl
-          bg-green-600
-          hover:bg-green-700
-          text-white
-          font-semibold
-          transition
-        "
-        >
-          Comprar Agora
-        </button>
+        <a
+  href={`https://wa.me/5583988333856?text=${encodeURIComponent(
+    `Olá! Tenho interesse no produto:\n\n${product.name}\n\nValor: R$ ${Number(product.price).toFixed(2)}`
+  )}`}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="
+    flex
+    w-full
+    h-14
+    items-center
+    justify-center
+    rounded-3xl
+    bg-green-600
+    hover:bg-green-700
+    text-white
+    font-semibold
+    transition
+  "
+>
+  Comprar pelo WhatsApp
+</a>
 
         <button
           onClick={() =>

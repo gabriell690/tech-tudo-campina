@@ -3,16 +3,41 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import {
+  useCallback,
   useEffect,
   useMemo,
   useState,
 } from "react";
-import { useNavigate } from "react-router-dom";
+
+import {
+  useNavigate,
+  useParams,
+} from "react-router-dom";
+
+import imageCompression from "browser-image-compression";
 
 import AdminSidebar from "../../components/admin/AdminSidebar";
+import ImageCropper from "../../components/admin/ImageCropper";
+
 import { useCategories } from "../../hooks/useCategories";
+
 import { supabase } from "../../lib/supabase";
-import { useParams } from "react-router-dom";
+
+import { getCroppedImg } from "../../utils/cropImage";
+
+interface ProductImage {
+
+  id: string;
+
+  file?: File;
+
+  url: string;
+
+  existing: boolean;
+
+  principal: boolean;
+
+}
 
 export default function ProductForm() {
 
@@ -20,13 +45,14 @@ export default function ProductForm() {
 
   const { id } = useParams();
 
-const isEditing = Boolean(id);
+  const isEditing = Boolean(id);
 
   const { categories } = useCategories();
 
   const [loading, setLoading] = useState(false);
 
   const [name, setName] = useState("");
+
   const [brand, setBrand] = useState("");
 
   const [description, setDescription] = useState("");
@@ -46,8 +72,17 @@ const isEditing = Boolean(id);
   const [subcategoryId, setSubcategoryId] =
     useState("");
 
-  const [imageFiles, setImageFiles] =
-    useState<File[]>([]);
+  const [images, setImages] =
+    useState<ProductImage[]>([]);
+
+  const [selectedImage, setSelectedImage] =
+    useState<string | null>(null);
+
+  const [editingIndex, setEditingIndex] =
+    useState<number | null>(null);
+
+  const [croppedArea, setCroppedArea] =
+    useState<any>(null);
 
   const selectedCategory = useMemo(() => {
 
@@ -59,38 +94,287 @@ const isEditing = Boolean(id);
 
   const subcategories =
     selectedCategory?.subcategories ?? [];
-    useEffect(() => {
 
-  loadProduct();
-}, [id]);
+  useEffect(() => {
 
-async function loadProduct() {
+    loadProduct();
 
-  if (!id) return;
+  }, [id]);
 
-  const { data, error } =
-    await supabase
-      .from("products")
-      .select("*")
-      .eq("id", id)
-      .single();
+  async function loadProduct() {
 
-  if (error || !data) return;
+    if (!id) return;
 
-  setName(data.name);
-  setBrand(data.brand);
-  setDescription(data.description);
-  setPrice(String(data.price));
-  setOldPrice(data.old_price ? String(data.old_price) : "");
-  setStock(String(data.stock));
+    const { data, error } =
+      await supabase
+        .from("products")
+        .select("*")
+        .eq("id", id)
+        .single();
 
-  setCategoryId(data.category_id ?? "");
-  setSubcategoryId(data.subcategory_id ?? "");
+    if (error || !data) return;
 
-  setFeatured(data.featured);
-  setActive(data.active);
+    setName(data.name);
 
-}
+    setBrand(data.brand);
+
+    setDescription(data.description);
+
+    setPrice(String(data.price));
+
+    setOldPrice(
+      data.old_price
+        ? String(data.old_price)
+        : ""
+    );
+
+    setStock(String(data.stock));
+
+    setCategoryId(
+      data.category_id ?? ""
+    );
+
+    setSubcategoryId(
+      data.subcategory_id ?? ""
+    );
+
+    setFeatured(data.featured);
+
+    setActive(data.active);
+
+    if (data.images?.length) {
+
+      setImages(
+
+        data.images.map(
+          (
+            url: string,
+            index: number
+          ) => ({
+
+            id: crypto.randomUUID(),
+
+            url,
+
+            existing: true,
+
+            principal:
+              index === 0,
+
+          })
+
+        )
+
+      );
+
+    }
+
+  }
+
+  const handleFiles = useCallback(
+
+    (
+      files: File[]
+    ) => {
+
+      const current =
+        images.length;
+
+      const remaining =
+        5 - current;
+
+      const selected =
+        files.slice(
+          0,
+          remaining
+        );
+
+      if (!selected.length)
+        return;
+
+      const list =
+        selected.map(
+          (file, index) => ({
+
+            id: crypto.randomUUID(),
+
+            file,
+
+            url:
+              URL.createObjectURL(
+                file
+              ),
+
+            existing: false,
+
+            principal:
+              current === 0 &&
+              index === 0,
+
+          })
+        );
+
+      const updated = [
+
+        ...images,
+
+        ...list,
+
+      ];
+
+      setImages(updated);
+
+      setEditingIndex(current);
+
+      setSelectedImage(
+        list[0].url
+      );
+
+    },
+
+    [images]
+
+  );
+
+  async function handleCropSave() {
+
+    if (
+
+      selectedImage === null ||
+
+      editingIndex === null ||
+
+      !croppedArea
+
+    )
+      return;
+
+    const blob =
+      await getCroppedImg(
+
+        selectedImage,
+
+        croppedArea
+
+      );
+
+    const file =
+      new File(
+
+        [blob],
+
+        `produto-${Date.now()}.webp`,
+
+        {
+
+          type:
+            "image/webp",
+
+        }
+
+      );
+
+    const compressed =
+      await imageCompression(
+        file,
+        {
+
+          maxSizeMB: 0.4,
+
+          maxWidthOrHeight:
+            1600,
+
+          useWebWorker:
+            true,
+
+        }
+
+      );
+
+    setImages((old) => {
+
+      const list = [...old];
+
+      list[
+        editingIndex
+      ] = {
+
+        ...list[
+          editingIndex
+        ],
+
+        file: compressed,
+
+        existing: false,
+
+        url:
+          URL.createObjectURL(
+            compressed
+          ),
+
+      };
+
+      return list;
+
+    });
+
+    setSelectedImage(null);
+
+    setEditingIndex(null);
+
+  }
+
+  const removeImage = (
+    index: number
+  ) => {
+
+    const list = [
+      ...images,
+    ];
+
+    list.splice(
+      index,
+      1
+    );
+
+    if (
+      list.length &&
+      !list.some(
+        (i) =>
+          i.principal
+      )
+    ) {
+
+      list[0].principal =
+        true;
+
+    }
+
+    setImages(list);
+
+  };
+
+  const setPrincipal = (
+    index: number
+  ) => {
+
+    setImages((old) =>
+      old.map(
+        (
+          image,
+          i
+        ) => ({
+
+          ...image,
+
+          principal:
+            i === index,
+
+        })
+      )
+    );
+
+  };
 
   async function handleSubmit(
     e: React.FormEvent
@@ -100,7 +384,9 @@ async function loadProduct() {
 
     if (!categoryId) {
 
-      alert("Selecione uma categoria.");
+      alert(
+        "Selecione uma categoria."
+      );
 
       return;
 
@@ -112,17 +398,52 @@ async function loadProduct() {
 
       const imageUrls: string[] = [];
 
-      for (const file of imageFiles) {
+      const orderedImages = [
+        ...images,
+      ].sort(
+
+        (a, b) =>
+          Number(
+            b.principal
+          ) -
+          Number(
+            a.principal
+          )
+
+      );
+            for (const image of orderedImages) {
+
+        if (image.existing) {
+
+          imageUrls.push(image.url);
+
+          continue;
+
+        }
+
+        if (!image.file) continue;
 
         const fileName =
-          `${Date.now()}-${Math.random()}-${file.name}`;
+
+          `${Date.now()}-${Math.random()}-${image.file.name}`;
 
         const {
+
           error: uploadError,
+
         } =
+
           await supabase.storage
+
             .from("products")
-            .upload(fileName, file);
+
+            .upload(
+
+              fileName,
+
+              image.file
+
+            );
 
         if (uploadError) {
 
@@ -131,22 +452,48 @@ async function loadProduct() {
         }
 
         const { data } =
+
           supabase.storage
+
             .from("products")
-            .getPublicUrl(fileName);
+
+            .getPublicUrl(
+
+              fileName
+
+            );
 
         imageUrls.push(
+
           data.publicUrl
+
         );
 
       }
 
       const slug =
+
         name
+
           .toLowerCase()
+
           .trim()
-          .replace(/[^\w\s-]/g, "")
-          .replace(/\s+/g, "-");
+
+          .replace(
+
+            /[^\w\s-]/g,
+
+            ""
+
+          )
+
+          .replace(
+
+            /\s+/g,
+
+            "-"
+
+          );
 
       const payload = {
 
@@ -163,23 +510,31 @@ async function loadProduct() {
         price: Number(price),
 
         old_price:
+
           oldPrice !== ""
+
             ? Number(oldPrice)
+
             : null,
 
         category:
+
           selectedCategory?.name ?? "",
 
         category_id:
+
           categoryId,
 
         subcategory_id:
+
           subcategoryId || null,
 
         image_url:
+
           imageUrls[0] ?? "",
 
         images:
+
           imageUrls,
 
         featured,
@@ -188,43 +543,66 @@ async function loadProduct() {
 
       };
 
-      console.log(payload);
+      let error = null;
 
-     let error = null;
+      if (isEditing) {
 
-if (isEditing) {
+        const response =
 
-  const response =
-    await supabase
-      .from("products")
-      .update(payload)
-      .eq("id", id);
+          await supabase
 
-  error = response.error;
+            .from("products")
 
-} else {
+            .update(payload)
 
-  const response =
-    await supabase
-      .from("products")
-      .insert(payload);
+            .eq(
 
-  error = response.error;
+              "id",
 
-}
+              id
 
-if (error) {
+            );
 
-  throw error;
+        error =
 
-}
+          response.error;
+
+      } else {
+
+        const response =
+
+          await supabase
+
+            .from("products")
+
+            .insert(payload);
+
+        error =
+
+          response.error;
+
+      }
+
+      if (error) {
+
+        throw error;
+
+      }
 
       alert(
-        "Produto cadastrado com sucesso!"
+
+        isEditing
+
+          ? "Produto atualizado com sucesso!"
+
+          : "Produto cadastrado com sucesso!"
+
       );
 
       navigate(
+
         "/admin/products"
+
       );
 
     } catch (error: any) {
@@ -232,7 +610,9 @@ if (error) {
       console.error(error);
 
       alert(
+
         error.message
+
       );
 
     } finally {
@@ -250,316 +630,792 @@ if (error) {
       <AdminSidebar />
 
       <main
+
         className="
+
           flex-1
+
           min-h-screen
+
           bg-slate-100
+
           p-8
+
         "
+
       >
 
-        <div className="max-w-5xl">
+        <div className="max-w-6xl">
 
           <h1
+
             className="
+
               text-4xl
+
               font-bold
+
               text-slate-800
+
             "
+
           >
-            Novo Produto
+
+            {isEditing
+
+              ? "Editar Produto"
+
+              : "Novo Produto"}
+
           </h1>
 
           <form
+
             onSubmit={handleSubmit}
+
             className="
+
               mt-8
+
               rounded-3xl
+
               bg-white
+
               p-8
+
               shadow-sm
+
             "
+
           >
 
             <div
+
               className="
+
                 grid
+
                 gap-6
+
                 md:grid-cols-2
+
               "
+
             >
-                            <input
+
+              <input
+
                 type="text"
+
                 placeholder="Nome do Produto"
+
                 value={name}
-                onChange={(e) =>
-                  setName(e.target.value)
+
+                onChange={(e)=>
+
+                  setName(
+
+                    e.target.value
+
+                  )
+
                 }
+
                 className="
+
                   rounded-2xl
+
                   border
+
                   border-slate-300
+
                   p-3
+
                   outline-none
+
                   focus:border-orange-500
+
                 "
+
                 required
+
               />
 
               <input
+
                 type="text"
+
                 placeholder="Marca"
+
                 value={brand}
-                onChange={(e) =>
-                  setBrand(e.target.value)
+
+                onChange={(e)=>
+
+                  setBrand(
+
+                    e.target.value
+
+                  )
+
                 }
+
                 className="
+
                   rounded-2xl
+
                   border
+
                   border-slate-300
+
                   p-3
+
                   outline-none
+
                   focus:border-orange-500
+
                 "
+
                 required
+
               />
 
               <select
+
                 value={categoryId}
-                onChange={(e) => {
+
+                onChange={(e)=>{
+
                   setCategoryId(
+
                     e.target.value
+
                   );
 
                   setSubcategoryId("");
+
                 }}
+
                 className="
+
                   rounded-2xl
+
                   border
+
                   border-slate-300
+
                   p-3
+
                   outline-none
+
                   focus:border-orange-500
+
                 "
+
                 required
+
               >
+
                 <option value="">
+
                   Selecione uma categoria
+
                 </option>
 
                 {categories.map(
-                  (category) => (
+
+                  (category)=>(
 
                     <option
+
                       key={category.id}
+
                       value={category.id}
+
                     >
+
                       {category.name}
+
                     </option>
 
                   )
+
                 )}
 
               </select>
+                            <select
 
-              <select
                 value={subcategoryId}
-                onChange={(e) =>
+
+                onChange={(e)=>
+
                   setSubcategoryId(
+
                     e.target.value
+
                   )
+
                 }
+
                 className="
+
                   rounded-2xl
+
                   border
+
                   border-slate-300
+
                   p-3
+
                   outline-none
+
                   focus:border-orange-500
+
                 "
+
               >
 
                 <option value="">
+
                   Selecione uma subcategoria
+
                 </option>
 
                 {subcategories.map(
-                  (subcategory) => (
+
+                  (subcategory)=>(
 
                     <option
+
                       key={subcategory.id}
+
                       value={subcategory.id}
+
                     >
+
                       {subcategory.name}
+
                     </option>
 
                   )
+
                 )}
 
               </select>
 
               <input
+
                 type="number"
+
                 placeholder="Estoque"
+
                 value={stock}
-                onChange={(e) =>
+
+                onChange={(e)=>
+
                   setStock(
+
                     e.target.value
+
                   )
+
                 }
+
                 className="
+
                   rounded-2xl
+
                   border
+
                   border-slate-300
+
                   p-3
+
                   outline-none
+
                   focus:border-orange-500
+
                 "
+
                 required
+
               />
 
               <input
+
                 type="number"
+
                 step="0.01"
+
                 placeholder="Preço"
+
                 value={price}
-                onChange={(e) =>
+
+                onChange={(e)=>
+
                   setPrice(
+
                     e.target.value
+
                   )
+
                 }
+
                 className="
+
                   rounded-2xl
+
                   border
+
                   border-slate-300
+
                   p-3
+
                   outline-none
+
                   focus:border-orange-500
+
                 "
+
                 required
+
               />
 
               <input
+
                 type="number"
+
                 step="0.01"
+
                 placeholder="Preço Antigo"
+
                 value={oldPrice}
-                onChange={(e) =>
+
+                onChange={(e)=>
+
                   setOldPrice(
+
                     e.target.value
+
                   )
+
                 }
+
                 className="
+
                   rounded-2xl
+
                   border
+
                   border-slate-300
+
                   p-3
+
                   outline-none
+
                   focus:border-orange-500
+
                 "
+
               />
 
               <div className="md:col-span-2">
 
                 <label
+
                   className="
+
                     mb-2
+
                     block
+
                     font-medium
+
                     text-slate-700
+
                   "
+
                 >
+
                   Imagens do Produto
+
                 </label>
 
                 <input
+
                   type="file"
-                  multiple
+
                   accept="image/*"
-                  onChange={(e) =>
-                    setImageFiles(
+
+                  multiple
+
+                  onChange={(e)=>
+
+                    handleFiles(
+
                       Array.from(
+
                         e.target.files || []
-                      ).slice(0, 5)
+
+                      )
+
                     )
+
                   }
+
                   className="
+
                     w-full
+
                     rounded-2xl
+
                     border
+
                     border-slate-300
+
                     p-3
+
                   "
-                  required
+
                 />
 
                 <p
+
                   className="
+
                     mt-2
+
                     text-sm
+
                     text-slate-500
+
                   "
+
                 >
-                  Você pode enviar até 5 imagens.
+
+                  Máximo de 5 imagens.
+
                 </p>
+
+                <div
+
+                  className="
+
+                    mt-6
+
+                    grid
+
+                    grid-cols-2
+
+                    gap-5
+
+                    md:grid-cols-5
+
+                  "
+
+                >
+
+                  {images.map(
+
+                    (
+
+                      image,
+
+                      index
+
+                    )=>(
+
+                      <div
+
+                        key={image.id}
+
+                        className="
+
+                          overflow-hidden
+
+                          rounded-2xl
+
+                          border
+
+                          bg-white
+
+                          shadow-sm
+
+                        "
+
+                      >
+
+                        <img
+
+                          src={image.url}
+
+                          alt=""
+
+                          className="
+
+                            h-44
+
+                            w-full
+
+                            object-cover
+
+                          "
+
+                        />
+
+                        <div className="p-3">
+
+                          {image.principal ? (
+
+                            <span
+
+                              className="
+
+                                mb-3
+
+                                block
+
+                                rounded-lg
+
+                                bg-green-600
+
+                                py-1
+
+                                text-center
+
+                                text-xs
+
+                                font-semibold
+
+                                text-white
+
+                              "
+
+                            >
+
+                              Principal
+
+                            </span>
+
+                          ) : (
+
+                            <button
+
+                              type="button"
+
+                              onClick={()=>
+
+                                setPrincipal(
+
+                                  index
+
+                                )
+
+                              }
+
+                              className="
+
+                                mb-3
+
+                                w-full
+
+                                rounded-lg
+
+                                bg-slate-200
+
+                                py-2
+
+                                text-xs
+
+                                font-semibold
+
+                              "
+
+                            >
+
+                              Tornar Principal
+
+                            </button>
+
+                          )}
+
+                          <button
+
+                            type="button"
+
+                            onClick={()=>{
+
+                              setEditingIndex(
+
+                                index
+
+                              );
+
+                              setSelectedImage(
+
+                                image.url
+
+                              );
+
+                            }}
+
+                            className="
+
+                              mb-2
+
+                              w-full
+
+                              rounded-lg
+
+                              bg-orange-500
+
+                              py-2
+
+                              text-sm
+
+                              font-semibold
+
+                              text-white
+
+                            "
+
+                          >
+
+                            Editar
+
+                          </button>
+
+                          <button
+
+                            type="button"
+
+                            onClick={()=>
+
+                              removeImage(
+
+                                index
+
+                              )
+
+                            }
+
+                            className="
+
+                              w-full
+
+                              rounded-lg
+
+                              bg-red-600
+
+                              py-2
+
+                              text-sm
+
+                              font-semibold
+
+                              text-white
+
+                            "
+
+                          >
+
+                            Excluir
+
+                          </button>
+
+                        </div>
+
+                      </div>
+
+                    )
+
+                  )}
+
+                </div>
 
               </div>
 
             </div>
 
             <textarea
-              placeholder="Descrição do produto"
-              value={description}
-              onChange={(e) =>
-                setDescription(
-                  e.target.value
-                )
-              }
-              rows={6}
-              className="
-                mt-6
-                w-full
-                rounded-2xl
-                border
-                border-slate-300
-                p-4
-                outline-none
-                focus:border-orange-500
-              "
-              required
-            />
+  placeholder="Descrição do produto (opcional)"
+  value={description}
+  onChange={(e) =>
+    setDescription(e.target.value)
+  }
+  rows={6}
+  className="
+    mt-6
+    w-full
+    rounded-2xl
+    border
+    border-slate-300
+    p-4
+    outline-none
+    focus:border-orange-500
+  "
+/>
                         <div
+
               className="
+
                 mt-8
+
                 flex
+
                 flex-wrap
+
                 items-center
+
                 gap-8
+
               "
+
             >
 
               <label
+
                 className="
+
                   flex
+
                   items-center
+
                   gap-3
-                  text-slate-700
+
                   font-medium
+
+                  text-slate-700
+
                 "
+
               >
+
                 <input
+
                   type="checkbox"
+
                   checked={featured}
-                  onChange={(e) =>
+
+                  onChange={(e)=>
+
                     setFeatured(
+
                       e.target.checked
+
                     )
+
                   }
+
                   className="
+
                     h-5
+
                     w-5
+
                     accent-orange-500
+
                   "
+
                 />
 
                 Produto em Destaque
@@ -567,27 +1423,49 @@ if (error) {
               </label>
 
               <label
+
                 className="
+
                   flex
+
                   items-center
+
                   gap-3
-                  text-slate-700
+
                   font-medium
+
+                  text-slate-700
+
                 "
+
               >
+
                 <input
+
                   type="checkbox"
+
                   checked={active}
-                  onChange={(e) =>
+
+                  onChange={(e)=>
+
                     setActive(
+
                       e.target.checked
+
                     )
+
                   }
+
                   className="
+
                     h-5
+
                     w-5
+
                     accent-green-600
+
                   "
+
                 />
 
                 Produto Ativo
@@ -597,43 +1475,92 @@ if (error) {
             </div>
 
             <div
+
               className="
+
                 mt-10
+
                 flex
+
                 justify-end
+
               "
+
             >
 
               <button
+
                 type="submit"
+
                 disabled={loading}
+
                 className="
+
                   rounded-xl
+
                   bg-orange-500
+
                   px-10
+
                   py-3
-                  text-white
+
                   font-semibold
+
+                  text-white
+
                   transition-all
+
                   duration-300
+
                   hover:bg-orange-600
+
                   hover:shadow-lg
+
                   disabled:cursor-not-allowed
+
                   disabled:opacity-60
+
                 "
+
               >
 
                 {loading
-  ? "Salvando..."
-  : isEditing
-    ? "Atualizar Produto"
-    : "Salvar Produto"}
+
+                  ? "Salvando..."
+
+                  : isEditing
+
+                  ? "Atualizar Produto"
+
+                  : "Salvar Produto"}
 
               </button>
 
             </div>
 
           </form>
+
+          {selectedImage && (
+
+            <ImageCropper
+
+              image={selectedImage}
+
+              onCropComplete={setCroppedArea}
+
+              onCancel={() => {
+
+                setSelectedImage(null);
+
+                setEditingIndex(null);
+
+              }}
+
+              onSave={handleCropSave}
+
+            />
+
+          )}
 
         </div>
 
