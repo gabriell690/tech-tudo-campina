@@ -192,8 +192,7 @@ export default function PromoBanner() {
                 </h3>
 
                 <p className="mt-2 text-slate-500">
-                  {product.short_description ??
-                    "Produto em destaque da semana."}
+                  {product.shortDescription ?? "Produto em destaque da semana."}
                 </p>
 
                 <div className="mt-6">
