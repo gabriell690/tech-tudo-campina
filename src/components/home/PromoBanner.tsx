@@ -1,124 +1,231 @@
+/* eslint-disable react-hooks/immutability */
+import { Link } from "react-router-dom";
+import { ArrowRight, ShieldCheck, Truck, BadgePercent } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "../../lib/supabase";
 import Container from "../ui/Container";
-import Button from "../ui/Button";
+import type { Product } from "../../types/product";
 
 export default function PromoBanner() {
+  const [product, setProduct] = useState<Product | null>(null);
+
+  useEffect(() => {
+    loadFeaturedProduct();
+  }, []);
+
+  async function loadFeaturedProduct() {
+    const { data } = await supabase
+      .from("products")
+      .select("*")
+      .eq("active", true)
+      .order("price", { ascending: false })
+      .limit(1);
+
+    if (data?.length) {
+      setProduct(data[0]);
+    }
+  }
+
+  if (!product) return null;
+
+  const installment = (
+    Number(product.price) / 12
+  )
+    .toFixed(2)
+    .replace(".", ",");
+
+  const discount =
+    product.old_price && product.old_price > product.price
+      ? Math.round(
+          ((product.old_price - product.price) /
+            product.old_price) *
+            100
+        )
+      : 0;
+
   return (
     <section className="py-20 bg-white">
       <Container>
         <div
           className="
-            relative
-            overflow-hidden
-            rounded-[40px]
-            bg-linear-to-br
-            from-slate-950
-            via-blue-950
-            to-slate-900
-            px-8
-            py-16
-            lg:px-16
-          "
+          relative
+          overflow-hidden
+          rounded-[40px]
+          bg-linear-to-r
+          from-slate-950
+          via-slate-900
+          to-yellow-950
+          p-10
+          lg:p-16
+        "
         >
-          {/* Glow */}
-          <div className="absolute -top-24 -right-24 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl" />
+          <div className="absolute -top-32 -right-20 w-96 h-96 rounded-full bg-yellow-400/20 blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-blue-500/10 blur-3xl" />
 
-          <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl" />
+          <div className="relative grid lg:grid-cols-2 gap-12 items-center">
 
-          <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
             {/* Texto */}
+
             <div>
-              <span
-                className="
-                  inline-flex
-                  items-center
-                  rounded-full
-                  border
-                  border-blue-500/30
-                  bg-blue-500/10
-                  px-4
-                  py-2
-                  text-sm
-                  text-blue-300
-                  mb-6
-                "
-              >
-                ⚡ OFERTA DA SEMANA
+
+              <span className="inline-flex items-center gap-2 rounded-full border border-yellow-500 px-5 py-2 text-yellow-400 font-medium">
+                 Oferta da Semana
               </span>
 
-              <h2
-                className="
-                  text-4xl
-                  md:text-5xl
-                  font-bold
-                  text-white
-                  leading-tight
-                "
-              >
-                Até 15% OFF
+              <h2 className="mt-8 text-5xl font-black text-white leading-tight">
+                O melhor da
                 <br />
-                em Smartphones Premium
+                <span className="text-yellow-400">
+                  CATEGORIA
+                </span>
               </h2>
 
-              <p className="mt-6 text-slate-300 text-lg max-w-lg">
-                Aproveite descontos exclusivos em smartphones,
-                acessórios e produtos tecnológicos selecionados.
+              <p className="mt-6 text-lg text-slate-300 max-w-xl">
+                Selecionamos o produto premium da semana
+                com o melhor custo-benefício da loja.
               </p>
 
-              <div className="flex flex-wrap gap-4 mt-8">
-                <Button>
-                  Comprar Agora
-                </Button>
+              <div className="mt-10 flex flex-wrap gap-8 text-white">
 
-                <Button variant="secondary">
-                  Ver Produtos
-                </Button>
+                <div className="flex items-center gap-3">
+                  <BadgePercent className="text-yellow-400" />
+                  <span>Preço Especial</span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <ShieldCheck className="text-green-400" />
+                  <span>Garantia</span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Truck className="text-blue-400" />
+                  <span>Entrega Nacional</span>
+                </div>
+
               </div>
-            </div>
 
-            {/* Card Destaque */}
-            <div className="flex justify-center">
-              <div
-                className="
-                  bg-white
-                  rounded-3xl
-                  p-6
-                  shadow-2xl
-                  w-full
-                  max-w-sm
-                "
-              >
-                <div
+              <div className="mt-10 flex gap-4">
+
+                <Link
+                  to={`/produto/${product.slug}`}
                   className="
-                    h-56
                     rounded-2xl
-                    bg-slate-100
-                    flex
-                    items-center
-                    justify-center
+                    bg-yellow-400
+                    px-8
+                    py-4
+                    font-semibold
+                    text-white
+                    hover:bg-yellow-400
+                    transition
                   "
                 >
-                  📱
-                </div>
+                  Comprar Agora
+                </Link>
 
-                <h3 className="font-bold text-xl mt-5">
-                  iPhone 16 Pro Max
+                <Link
+                  to={`/produto/${product.slug}`}
+                  className="
+                    rounded-2xl
+                    border
+                    border-white/20
+                    px-8
+                    py-4
+                    text-white
+                    hover:bg-white/10
+                    transition
+                    flex
+                    items-center
+                    gap-2
+                  "
+                >
+                  Ver Produto
+
+                  <ArrowRight size={18} />
+
+                </Link>
+
+              </div>
+
+            </div>
+
+            {/* Produto */}
+
+            <div className="flex justify-center">
+
+              <Link
+                to={`/produto/${product.slug}`}
+                className="
+                  group
+                  bg-white
+                  rounded-3xl
+                  shadow-2xl
+                  p-7
+                  w-full
+                  max-w-md
+                  transition
+                  hover:scale-[1.02]
+                "
+              >
+
+                {discount > 0 && (
+
+                  <div className="absolute mt-4 ml-4 rounded-full bg-yellow-400 text-white px-4 py-2 font-bold">
+                    -{discount}%
+                  </div>
+
+                )}
+
+                <img
+                  src={product.image_url || product.image}
+                  alt={product.name}
+                  className="
+                    h-72
+                    w-full
+                    object-contain
+                    transition
+                    group-hover:scale-105
+                  "
+                />
+
+                <h3 className="mt-6 text-2xl font-bold">
+                  {product.name}
                 </h3>
 
-                <p className="text-slate-500 mt-2">
-                  Tecnologia de última geração
+                <p className="mt-2 text-slate-500">
+                  {product.short_description ??
+                    "Produto em destaque da semana."}
                 </p>
 
-                <div className="mt-5">
-                  <p className="text-slate-400 line-through">
-                    R$ 8.999,90
+                <div className="mt-6">
+
+                  {product.old_price && (
+
+                    <p className="text-slate-400 line-through text-lg">
+                      R$ {Number(product.old_price)
+                        .toFixed(2)
+                        .replace(".", ",")}
+                    </p>
+
+                  )}
+
+                  <p className="text-4xl font-black text-yellow-400">
+                    R$ {Number(product.price)
+                      .toFixed(2)
+                      .replace(".", ",")}
                   </p>
 
-                  <p className="text-3xl font-bold text-blue-600">
-                    R$ 7.649,90
+                  <p className="mt-2 text-slate-600">
+                    em até
+                    <strong> 12x de R$ {installment}</strong>
+                    sem juros
                   </p>
+
                 </div>
-              </div>
+
+              </Link>
+
             </div>
+
           </div>
         </div>
       </Container>

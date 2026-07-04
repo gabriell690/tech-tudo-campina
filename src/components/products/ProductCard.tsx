@@ -39,7 +39,7 @@ export default function ProductCard({
         transition-all
         duration-300
         hover:-translate-y-1
-        hover:border-orange-300
+        hover:border-yellow-400
         hover:shadow-xl
       "
     >
@@ -47,7 +47,7 @@ export default function ProductCard({
 
       <div className="flex items-center justify-between px-4 pt-4">
 
-        <div className="flex items-center gap-1 text-amber-500">
+        <div className="flex items-center gap-1 text-yellow-500">
 
           <Star
             size={14}
@@ -193,7 +193,7 @@ export default function ProductCard({
               line-through
             "
           >
-            R$ {Number(product.old_price).toFixed(2)}
+            R$ {Number(product.old_price).toFixed(2).replace(".", ",")}
           </p>
         )}
 
@@ -206,7 +206,7 @@ export default function ProductCard({
               text-slate-900
             "
           >
-            R$ {Number(product.price).toFixed(2)}
+            R$ {Number(product.price).toFixed(2).replace(".", ",")}
           </span>
 
           {discount > 0 && (

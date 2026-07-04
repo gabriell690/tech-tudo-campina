@@ -91,28 +91,15 @@ export default function ProductInfo({
       {/* Preços */}
       <div>
 
-        {product.old_price && (
-          <p
-            className="
-            text-lg
-            text-slate-400
-            line-through
-          "
-          >
-            R$ {Number(product.old_price).toFixed(2)}
-          </p>
-        )}
+     {product.old_price && (
+  <p className="text-lg text-slate-400 line-through">
+    R$ {Number(product.old_price).toFixed(2).replace(".", ",")}
+  </p>
+)}
 
-        <h2
-          className="
-          text-4xl
-          md:text-5xl
-          font-black
-          text-slate-900
-        "
-        >
-          R$ {Number(product.price).toFixed(2)}
-        </h2>
+<h2 className="text-4xl md:text-5xl font-black text-slate-900">
+  R$ {Number(product.price).toFixed(2).replace(".", ",")}
+</h2>
 
         <p
           className="
