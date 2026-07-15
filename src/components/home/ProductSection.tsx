@@ -109,41 +109,33 @@ export default function ProductSection({
         </div>
 {products.length === 0 ? (
 
-    <div className="py-10 text-center text-slate-400">
-
-        Nenhum produto encontrado nesta categoria.
-
-    </div>
+  <div className="py-10 text-center text-slate-400">
+    Nenhum produto encontrado nesta categoria.
+  </div>
 
 ) : (
 
-    <ProductCarousel>
+  <ProductCarousel>
 
-        ...
+    {products.map((product) => (
 
-    </ProductCarousel>
+      <div
+        key={product.id}
+        className="
+          flex-[0_0_48%]
+          md:flex-[0_0_31%]
+          xl:flex-[0_0_22%]
+          2xl:flex-[0_0_19%]
+        "
+      >
+        <ProductCard product={product} />
+      </div>
+
+    ))}
+
+  </ProductCarousel>
 
 )}
-        <ProductCarousel>
-
-          {products.map((product) => (
-
-            <div
-              key={product.id}
-              className="
-                flex-[0_0_48%]
-                md:flex-[0_0_31%]
-                xl:flex-[0_0_22%]
-                2xl:flex-[0_0_19%]
-              "
-            >
-              <ProductCard product={product} />
-
-            </div>
-
-          ))}
-
-        </ProductCarousel>
 
       </Container>
 

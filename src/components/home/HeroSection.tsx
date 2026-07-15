@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/immutability */
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
-import Hero from "./Hero";
 import BannerGrid from "./BannerGrid";
 
 interface Banner {
@@ -41,16 +40,13 @@ export default function HomeHero() {
     }
   }
 
-  // Enquanto carrega
-  if (loading) {
-    return <Hero />;
-  }
+if (loading) {
+  return null;
+}
 
-  // Se existir pelo menos um banner ativo
-  if (banners.length > 0) {
-    return <BannerGrid />;
-  }
+if (banners.length > 0) {
+  return <BannerGrid />;
+}
 
-  // Se não existir nenhum banner ativo
-  return <Hero />;
+return null;
 }
