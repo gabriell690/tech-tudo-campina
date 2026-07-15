@@ -1,5 +1,5 @@
 export interface Product {
-  short_description: string;
+ short_description?: string;
   id: string;
 
   name: string;
